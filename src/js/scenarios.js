@@ -42,9 +42,9 @@ export const SCENARIOS = [
 ];
 
 export const THRESHOLDS = {
-  critical: { value: 85, label: 'Límite crítico CPU (85 °C)', color: '#ff5f6d' },
-  warning:  { value: 70, label: 'Zona de advertencia (70 °C)',  color: '#f9c74f' },
-  ashrae:   { value: 27, label: 'Máx. entrada ASHRAE A1 (27 °C)', color: '#4f9cf9' },
+  critical: { value: 85, label: 'Límite crítico CPU (85 °C)', color: '#e84444' },
+  warning:  { value: 70, label: 'Zona de advertencia (70 °C)',  color: '#e8c040' },
+  ashrae:   { value: 27, label: 'Máx. entrada ASHRAE A1 (27 °C)', color: '#2ac4eb' },
 };
 
 export function renderScenarioCards(containerId, onSelect) {

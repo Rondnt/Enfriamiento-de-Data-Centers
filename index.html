@@ -10,8 +10,9 @@
 <body>
 
   <header>
-    <h1>Ley de Enfriamiento de Newton</h1>
-    <p class="subtitle">Simulador de sistemas de enfriamiento para Data Centers</p>
+    <div class="header-formula">dT/dt = &minus;k &middot; (T &minus; T<sub>amb</sub>)</div>
+    <h1>Enfriamiento de Data Centers</h1>
+    <p class="subtitle">Ley de Enfriamiento de Newton &middot; Métodos Numéricos: Euler &amp; Runge-Kutta 4</p>
   </header>
 
   <div class="app-layout">
@@ -175,13 +176,11 @@
       </section>
 
       <!-- Fila 4: Sensibilidad -->
-      <div class="two-col">
-        <section class="card" id="section-sensitivity">
-          <h2>Análisis de Sensibilidad — k</h2>
-          <p class="section-desc">Curvas analíticas para distintos sistemas de cooling.</p>
-          <div class="chart-wrapper chart-sm"><canvas id="sensitivityChart"></canvas></div>
-        </section>
-      </div>
+      <section class="card" id="section-sensitivity">
+        <h2>Análisis de Sensibilidad — k</h2>
+        <p class="section-desc">Curvas analíticas para distintos valores del coeficiente de enfriamiento k.</p>
+        <div class="chart-wrapper"><canvas id="sensitivityChart"></canvas></div>
+      </section>
 
       <!-- Fila 5: Diagrama de fase + Convergencia -->
       <div class="two-col">

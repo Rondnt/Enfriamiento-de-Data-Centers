@@ -4,11 +4,11 @@
  */
 
 const COLORS = {
-  analytical: '#4f9cf9',
-  euler: '#f97b4f',
-  rk4: '#4fc98e',
-  eulerError: '#f97b4f',
-  rk4Error: '#4fc98e',
+  analytical: '#2ac4eb',
+  euler:      '#f99040',
+  rk4:        '#35c99a',
+  eulerError: '#f99040',
+  rk4Error:   '#35c99a',
 };
 
 const BASE_DATASET_CONFIG = {
@@ -82,15 +82,23 @@ function buildErrorDatasets(eulerError, rk4Error, visibility) {
 }
 
 function chartDefaults(xLabel, yLabel) {
+  const muted = '#7a8498';
+  const grid  = '#252c3c';
   return {
     responsive: true,
     maintainAspectRatio: false,
-    animation: { duration: 250 },
+    animation: { duration: 200 },
     plugins: {
       legend: {
-        labels: { color: '#8892a4', font: { size: 12 } },
+        labels: { color: muted, font: { size: 11, family: 'ui-monospace, Consolas, monospace' } },
       },
       tooltip: {
+        backgroundColor: '#161a24',
+        borderColor: '#252c3c',
+        borderWidth: 1,
+        titleColor: '#c8d0dc',
+        bodyColor: muted,
+        padding: 10,
         callbacks: {
           label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(3)}`,
         },
@@ -98,14 +106,16 @@ function chartDefaults(xLabel, yLabel) {
     },
     scales: {
       x: {
-        title: { display: true, text: xLabel, color: '#8892a4' },
-        ticks: { color: '#8892a4', maxTicksLimit: 12 },
-        grid: { color: '#2e3250' },
+        title: { display: true, text: xLabel, color: muted, font: { size: 11 } },
+        ticks: { color: muted, maxTicksLimit: 12, font: { size: 11 } },
+        grid: { color: grid },
+        border: { color: grid },
       },
       y: {
-        title: { display: true, text: yLabel, color: '#8892a4' },
-        ticks: { color: '#8892a4' },
-        grid: { color: '#2e3250' },
+        title: { display: true, text: yLabel, color: muted, font: { size: 11 } },
+        ticks: { color: muted, font: { size: 11 } },
+        grid: { color: grid },
+        border: { color: grid },
       },
     },
   };

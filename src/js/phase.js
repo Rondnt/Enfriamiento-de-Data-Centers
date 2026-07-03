@@ -17,7 +17,7 @@ function buildDatasets(params) {
       type: 'line',
       label: 'dT/dt vs T',
       data: phasePoints,
-      borderColor: '#4f9cf9',
+      borderColor: '#2ac4eb',
       borderWidth: 2.5,
       pointRadius: 0,
       tension: 0,
@@ -27,8 +27,8 @@ function buildDatasets(params) {
       type: 'scatter',
       label: `Equilibrio T* = ${Teq.toFixed(1)} °C`,
       data: [{ x: Teq, y: 0 }],
-      borderColor: '#4fc98e',
-      backgroundColor: '#4fc98e',
+      borderColor: '#35c99a',
+      backgroundColor: '#35c99a',
       pointRadius: 9,
       pointStyle: 'circle',
     },
@@ -36,8 +36,8 @@ function buildDatasets(params) {
       type: 'scatter',
       label: `Condición inicial T₀ = ${T0} °C`,
       data: [{ x: T0, y: dT0 }],
-      borderColor: '#f97b4f',
-      backgroundColor: '#f97b4f',
+      borderColor: '#f99040',
+      backgroundColor: '#f99040',
       pointRadius: 9,
       pointStyle: 'triangle',
     },
@@ -50,7 +50,7 @@ function chartOptions() {
     maintainAspectRatio: false,
     animation: { duration: 200 },
     plugins: {
-      legend: { labels: { color: '#8892a4', font: { size: 11 } } },
+      legend: { labels: { color: '#7a8498', font: { size: 11 } } },
       tooltip: {
         callbacks: {
           label: ctx => ` T = ${ctx.parsed.x.toFixed(1)} °C   dT/dt = ${ctx.parsed.y.toFixed(3)} °C/min`,
@@ -60,14 +60,14 @@ function chartOptions() {
     scales: {
       x: {
         type: 'linear',
-        title: { display: true, text: 'Temperatura T (°C)', color: '#8892a4' },
-        ticks: { color: '#8892a4' },
-        grid: { color: '#2e3250' },
+        title: { display: true, text: 'Temperatura T (°C)', color: '#7a8498' },
+        ticks: { color: '#7a8498' },
+        grid: { color: '#252c3c' },
       },
       y: {
-        title: { display: true, text: 'dT/dt (°C/min)', color: '#8892a4' },
-        ticks: { color: '#8892a4' },
-        grid: { color: '#2e3250' },
+        title: { display: true, text: 'dT/dt (°C/min)', color: '#7a8498' },
+        ticks: { color: '#7a8498' },
+        grid: { color: '#252c3c' },
       },
     },
   };

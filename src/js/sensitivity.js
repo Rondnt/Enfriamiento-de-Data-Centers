@@ -7,12 +7,12 @@
 import { buildSensitivityCurves } from './solver.js';
 
 const K_PROFILES = [
-  { k: 0.03, label: 'k=0.03 — Fallo CRAC',          color: '#ff5f6d' },
-  { k: 0.06, label: 'k=0.06 — Aire deficiente',       color: '#f97b4f' },
-  { k: 0.08, label: 'k=0.08 — Aire estándar',         color: '#f9c74f' },
-  { k: 0.15, label: 'k=0.15 — Aire mejorado',         color: '#4f9cf9' },
+  { k: 0.03, label: 'k=0.03 — Fallo CRAC',          color: '#e84444' },
+  { k: 0.06, label: 'k=0.06 — Aire deficiente',       color: '#f99040' },
+  { k: 0.08, label: 'k=0.08 — Aire estándar',         color: '#e8c040' },
+  { k: 0.15, label: 'k=0.15 — Aire mejorado',         color: '#2ac4eb' },
   { k: 0.25, label: 'k=0.25 — Enfriamiento híbrido',  color: '#a78bfa' },
-  { k: 0.35, label: 'k=0.35 — Enfriamiento líquido',  color: '#4fc98e' },
+  { k: 0.35, label: 'k=0.35 — Enfriamiento líquido',  color: '#35c99a' },
 ];
 
 function buildDatasets(curves) {
@@ -32,21 +32,21 @@ function chartOptions() {
     maintainAspectRatio: false,
     animation: { duration: 200 },
     plugins: {
-      legend: { labels: { color: '#8892a4', font: { size: 11 } } },
+      legend: { labels: { color: '#7a8498', font: { size: 11 } } },
       tooltip: {
         callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)} °C` },
       },
     },
     scales: {
       x: {
-        title: { display: true, text: 'Tiempo (min)', color: '#8892a4' },
-        ticks: { color: '#8892a4', maxTicksLimit: 12 },
-        grid: { color: '#2e3250' },
+        title: { display: true, text: 'Tiempo (min)', color: '#7a8498' },
+        ticks: { color: '#7a8498', maxTicksLimit: 12 },
+        grid: { color: '#252c3c' },
       },
       y: {
-        title: { display: true, text: 'Temperatura (°C)', color: '#8892a4' },
-        ticks: { color: '#8892a4' },
-        grid: { color: '#2e3250' },
+        title: { display: true, text: 'Temperatura (°C)', color: '#7a8498' },
+        ticks: { color: '#7a8498' },
+        grid: { color: '#252c3c' },
       },
     },
   };
