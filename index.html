@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enfriamiento DC — Ley de Newton</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="src/css/style.css" />
+</head>
+<body>
+
+  <header>
+    <h1>Ley de Enfriamiento de Newton</h1>
+    <p class="subtitle">Simulador de sistemas de enfriamiento para Data Centers</p>
+  </header>
+
+  <div class="app-layout">
+
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="sidebar">
+
+      <section class="card" id="section-servers">
+        <h2>Servidores DC</h2>
+        <p class="section-desc">Selecciona un servidor para cargar sus parámetros.</p>
+        <div id="serverList" class="server-grid-sidebar">
+          <p class="empty-msg">Cargando...</p>
+        </div>
+        <div class="scenario-actions">
+          <button id="btnNewServer" class="btn-secondary btn-block">+ Registrar servidor</button>
+        </div>
+        <div id="serverForm" class="custom-scenario-form hidden">
+          <h3>Nuevo Servidor</h3>
+          <form id="formNewServer">
+            <div class="form-grid-sidebar">
+              <div class="form-group"><label>Nombre</label><input type="text" name="srvName" required placeholder="Web-Server-02" /></div>
+              <div class="form-group"><label>Rack</label><input type="text" name="srvRack" placeholder="Zona B — Rack 4" /></div>
+              <div class="form-group">
+                <label>Tipo</label>
+                <select name="srvType">
+                  <option value="web">Web</option>
+                  <option value="database">Base de datos</option>
+                  <option value="gpu">GPU</option>
+                  <option value="hpc">HPC</option>
+                  <option value="storage">Storage</option>
+                  <option value="general">General</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Cooling</label>
+                <select name="srvCooling">
+                  <option value="air">Aire</option>
+                  <option value="liquid">Líquido</option>
+                  <option value="hybrid">Híbrido</option>
+                  <option value="immersion">Inmersión</option>
+                </select>
+              </div>
+              <div class="form-group"><label>k (min⁻¹)</label><input type="number" name="srvK" step="0.001" value="0.08" required /></div>
+              <div class="form-group"><label>T_max (°C)</label><input type="number" name="srvMaxTemp" step="0.5" value="85" required /></div>
+              <div class="form-group"><label>T_amb (°C)</label><input type="number" name="srvTamb" step="0.5" value="22" required /></div>
+              <div class="form-group">
+                <label>Estado</label>
+                <select name="srvStatus">
+                  <option value="active">Activo</option>
+                  <option value="maintenance">Mantenimiento</option>
+                  <option value="shutdown">Apagado</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Guardar</button>
+              <button type="button" class="btn-secondary" onclick="document.getElementById('serverForm').classList.add('hidden')">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="card hidden" id="serverDetail">
+        <div class="server-detail-header">
+          <div>
+            <h2 id="selectedServerName">—</h2>
+            <p class="server-detail-sub" id="selectedServerType">—</p>
+          </div>
+          <button id="btnDeleteServer" class="btn-danger">✕</button>
+        </div>
+        <div class="server-detail-grid">
+          <div class="metric"><span class="metric-label">Ubicación</span><span class="metric-value small" id="selectedServerLocation">—</span></div>
+          <div class="metric"><span class="metric-label">Estado</span><span class="metric-value small" id="selectedServerStatus">—</span></div>
+          <div class="metric"><span class="metric-label">k (min⁻¹)</span><span class="metric-value" id="selectedServerK">—</span></div>
+          <div class="metric"><span class="metric-label">T_max</span><span class="metric-value" id="selectedServerMaxTemp">—</span></div>
+          <div class="metric"><span class="metric-label">T_amb</span><span class="metric-value" id="selectedServerTamb">—</span></div>
+        </div>
+        <div class="readings-section">
+          <h3>Lecturas de temperatura</h3>
+          <div class="reading-input-row">
+            <input type="number" id="newReadingTemp" step="0.1" placeholder="°C actual" />
+            <button id="btnAddReading" class="btn-primary">+ Registrar</button>
+          </div>
+          <div id="readingsList" class="readings-list"></div>
+        </div>
+      </section>
+
+    </aside>
+
+    <!-- ══ CONTENIDO PRINCIPAL ══ -->
+    <main class="content">
+
+      <!-- Fila 1: Modelo + Controles -->
+      <div class="two-col">
+        <section class="card" id="section-model">
+          <h2>Modelo Matemático</h2>
+          <div class="equation-block">
+            <p class="eq">dT/dt = &minus;k &middot; (T &minus; T<sub>amb</sub>)</p>
+            <p class="eq">T(t) = T<sub>amb</sub> + (T<sub>0</sub> &minus; T<sub>amb</sub>) &middot; e<sup>&minus;kt</sup></p>
+          </div>
+          <div class="variables">
+            <span><strong>T(t)</strong> — Temperatura del servidor (°C)</span>
+            <span><strong>T<sub>amb</sub></strong> — Temperatura cuarto frío (°C)</span>
+            <span><strong>T<sub>0</sub></strong> — Temperatura inicial (°C)</span>
+            <span><strong>k</strong> — Constante de enfriamiento (min⁻¹)</span>
+          </div>
+        </section>
+
+        <section class="card" id="section-controls">
+          <h2>Parámetros</h2>
+          <div class="controls-list">
+            <div class="control-group">
+              <label for="T0">T<sub>0</sub> — Temperatura inicial (°C)</label>
+              <div class="slider-row"><input type="range" id="T0" min="25" max="120" step="1" value="80" /><span class="val" id="T0val">80</span></div>
+            </div>
+            <div class="control-group">
+              <label for="Tamb">T<sub>amb</sub> — Temperatura ambiente (°C)</label>
+              <div class="slider-row"><input type="range" id="Tamb" min="5" max="40" step="1" value="22" /><span class="val" id="Tambval">22</span></div>
+            </div>
+            <div class="control-group">
+              <label for="k">k — Constante de enfriamiento (min⁻¹)</label>
+              <div class="slider-row"><input type="range" id="k" min="0.01" max="0.5" step="0.01" value="0.08" /><span class="val" id="kval">0.080</span></div>
+            </div>
+            <div class="control-group">
+              <label for="tmax">Tiempo de simulación (min)</label>
+              <div class="slider-row"><input type="range" id="tmax" min="10" max="120" step="5" value="90" /><span class="val" id="tmaxval">90</span></div>
+            </div>
+            <div class="control-group">
+              <label for="h">Paso de integración h (min)</label>
+              <div class="slider-row"><input type="range" id="h" min="0.1" max="5" step="0.1" value="1" /><span class="val" id="hval">1.0</span></div>
+            </div>
+            <div class="control-group">
+              <label>Métodos</label>
+              <div class="check-row">
+                <label><input type="checkbox" id="showAnalytical" checked /> Analítica</label>
+                <label><input type="checkbox" id="showEuler" checked /> Euler</label>
+                <label><input type="checkbox" id="showRK4" checked /> RK4</label>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Fila 2: Gráfica principal (ancho completo) -->
+      <section class="card" id="section-main-chart">
+        <h2>Temperatura vs Tiempo — Comparación de Métodos</h2>
+        <div class="chart-wrapper"><canvas id="mainChart"></canvas></div>
+      </section>
+
+      <!-- Fila 3: Métricas (ancho completo) -->
+      <section class="card" id="section-metrics">
+        <h2>Indicadores Clave</h2>
+        <div class="metrics-grid">
+          <div class="metric"><span class="metric-label">T final (analítica)</span><span class="metric-value" id="metricTFinal">—</span></div>
+          <div class="metric"><span class="metric-label">Tiempo al 50%</span><span class="metric-value" id="metricHalfLife">—</span></div>
+          <div class="metric"><span class="metric-label">τ = 1/k</span><span class="metric-value" id="metricTau">—</span></div>
+          <div class="metric"><span class="metric-label">Error máx. Euler</span><span class="metric-value" id="metricEulerErr">—</span></div>
+          <div class="metric"><span class="metric-label">Error máx. RK4</span><span class="metric-value" id="metricRK4Err">—</span></div>
+          <div class="metric"><span class="metric-label">Umbral crítico &gt;85°C</span><span class="metric-value" id="metricCritical">—</span></div>
+        </div>
+      </section>
+
+      <!-- Fila 4: Sensibilidad -->
+      <div class="two-col">
+        <section class="card" id="section-sensitivity">
+          <h2>Análisis de Sensibilidad — k</h2>
+          <p class="section-desc">Curvas analíticas para distintos sistemas de cooling.</p>
+          <div class="chart-wrapper chart-sm"><canvas id="sensitivityChart"></canvas></div>
+        </section>
+      </div>
+
+      <!-- Fila 5: Diagrama de fase + Convergencia -->
+      <div class="two-col">
+        <section class="card" id="section-phase">
+          <h2>Diagrama de Fase</h2>
+          <p class="section-desc">dT/dt vs T — muestra el equilibrio del sistema.</p>
+          <div class="chart-wrapper chart-sm"><canvas id="phaseChart"></canvas></div>
+        </section>
+        <section class="card" id="section-convergence">
+          <h2>Análisis de Convergencia</h2>
+          <p class="section-desc">Error vs h — Euler O(h), RK4 O(h⁴). Escala log.</p>
+          <div class="chart-wrapper chart-sm"><canvas id="convergenceChart"></canvas></div>
+        </section>
+      </div>
+
+      <!-- Fila 6: Error numérico + Tabla -->
+      <div class="two-col">
+        <section class="card" id="section-error-chart">
+          <h2>Error Numérico vs Tiempo</h2>
+          <div class="chart-wrapper chart-sm"><canvas id="errorChart"></canvas></div>
+        </section>
+        <section class="card" id="section-table">
+          <h2>Tabla de Resultados</h2>
+          <div class="table-header-row">
+            <p class="table-note">Cada 5 pasos</p>
+            <button id="btnExportCSV" class="btn-export">Exportar CSV</button>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>t</th>
+                  <th>Analítica</th>
+                  <th>Euler</th>
+                  <th>Err E</th>
+                  <th>RK4</th>
+                  <th>Err R</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+    </main>
+  </div>
+
+  <footer>
+    <p>Proyecto de Ecuaciones Diferenciales — Ley de Enfriamiento de Newton · Data Centers</p>
+  </footer>
+
+  <script type="module" src="src/js/main.js"></script>
+</body>
+</html>
