@@ -489,6 +489,54 @@ tbody td:first-child { text-align: left; color: var(--text-muted); }
   border-color: var(--accent-dim);
 }
 
+/* ─── Calculadora de k ─── */
+.k-calc-section {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-soft);
+}
+
+.k-calc-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+
+.k-calc-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.k-calc-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.k-calc-result {
+  margin-top: 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--radius-sm);
+}
+
+.k-calc-result.success {
+  background: oklch(0.73 0.16 168 / 0.10);
+  border: 1px solid oklch(0.73 0.16 168 / 0.25);
+  color: var(--cool);
+}
+
+.k-calc-result.error {
+  background: oklch(0.62 0.22 15 / 0.10);
+  border: 1px solid oklch(0.62 0.22 15 / 0.25);
+  color: var(--red);
+}
+
 /* ─── Formulario entradas ─── */
 .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
 

@@ -51,6 +51,51 @@ function run() {
   window._lastResults = { times, analytical };
 }
 
+// ── Calculadora de k ───────────────────────────────────────────────────────
+
+document.getElementById('btnCalcK').addEventListener('click', () => {
+  const params  = readParams();
+  const t1      = parseFloat(document.getElementById('kCalcT1').value);
+  const Tt1     = parseFloat(document.getElementById('kCalcTt1').value);
+  const result  = document.getElementById('kCalcResult');
+
+  result.classList.remove('hidden', 'success', 'error');
+
+  if (isNaN(t1) || t1 <= 0 || isNaN(Tt1)) {
+    result.textContent = 'Ingresa valores válidos para t₁ y T(t₁).';
+    result.classList.add('error');
+    return;
+  }
+
+  const { T0, Tamb } = params;
+
+  if (Math.abs(T0 - Tamb) < 0.01) {
+    result.textContent = 'T₀ y T_amb son iguales — no hay enfriamiento.';
+    result.classList.add('error');
+    return;
+  }
+
+  const ratio = (Tt1 - Tamb) / (T0 - Tamb);
+
+  if (ratio <= 0 || ratio >= 1) {
+    result.textContent = 'T(t₁) debe estar estrictamente entre T_amb y T₀.';
+    result.classList.add('error');
+    return;
+  }
+
+  const k = -Math.log(ratio) / t1;
+
+  // Aplicar k al slider y al input numérico
+  const kSlider = document.getElementById('k');
+  const kInput  = document.getElementById('kval');
+  kSlider.value = k;
+  kInput.value  = k.toFixed(3);
+  kSlider.dispatchEvent(new Event('input'));
+
+  result.textContent = `k = ${k.toFixed(4)} min⁻¹ — aplicado a la simulación`;
+  result.classList.add('success');
+});
+
 // ── Servidores ─────────────────────────────────────────────────────────────
 
 async function refreshServers() {

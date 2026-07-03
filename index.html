@@ -153,6 +153,23 @@
               </div>
             </div>
           </div>
+
+          <div class="k-calc-section">
+            <p class="k-calc-label">Calcular k desde una medición</p>
+            <p class="k-calc-hint">Si conoces T(t₁), ingresa los datos y se calculará k automáticamente.</p>
+            <div class="k-calc-inputs">
+              <div class="form-group">
+                <label>t<sub>1</sub> (min)</label>
+                <input type="number" id="kCalcT1" step="0.5" min="0.1" placeholder="ej. 5" />
+              </div>
+              <div class="form-group">
+                <label>T(t<sub>1</sub>) (°C)</label>
+                <input type="number" id="kCalcTt1" step="0.1" placeholder="ej. 60" />
+              </div>
+              <button id="btnCalcK" class="btn-primary">Calcular k</button>
+            </div>
+            <p class="k-calc-result hidden" id="kCalcResult"></p>
+          </div>
         </section>
       </div>
 
