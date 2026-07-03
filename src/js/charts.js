@@ -29,7 +29,7 @@ function buildThresholdDataset(label, value, color, count) {
   };
 }
 
-function buildMainDatasets(times, analytical, euler, rk4, visibility, thresholds) {
+function buildMainDatasets(times, analytical, thresholds) {
   const n = times.length;
   return [
     buildThresholdDataset(thresholds.critical.label, thresholds.critical.value, thresholds.critical.color, n),
@@ -37,46 +37,10 @@ function buildMainDatasets(times, analytical, euler, rk4, visibility, thresholds
     buildThresholdDataset(thresholds.ashrae.label,   thresholds.ashrae.value,   thresholds.ashrae.color,   n),
     {
       ...BASE_DATASET_CONFIG,
-      label: 'Analítica',
+      label: 'T(t) — Solución analítica',
       data: analytical,
       borderColor: COLORS.analytical,
-      hidden: !visibility.analytical,
       borderWidth: 2.5,
-    },
-    {
-      ...BASE_DATASET_CONFIG,
-      label: 'Euler',
-      data: euler,
-      borderColor: COLORS.euler,
-      hidden: !visibility.euler,
-      borderDash: [6, 3],
-    },
-    {
-      ...BASE_DATASET_CONFIG,
-      label: 'Runge-Kutta 4',
-      data: rk4,
-      borderColor: COLORS.rk4,
-      hidden: !visibility.rk4,
-      borderDash: [2, 2],
-    },
-  ];
-}
-
-function buildErrorDatasets(eulerError, rk4Error, visibility) {
-  return [
-    {
-      ...BASE_DATASET_CONFIG,
-      label: 'Error Euler',
-      data: eulerError,
-      borderColor: COLORS.eulerError,
-      hidden: !visibility.euler,
-    },
-    {
-      ...BASE_DATASET_CONFIG,
-      label: 'Error RK4',
-      data: rk4Error,
-      borderColor: COLORS.rk4Error,
-      hidden: !visibility.rk4,
     },
   ];
 }
@@ -130,23 +94,8 @@ export function initMainChart(canvasId) {
   });
 }
 
-export function initErrorChart(canvasId) {
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  return new Chart(ctx, {
-    type: 'line',
-    data: { labels: [], datasets: [] },
-    options: chartDefaults('Tiempo (min)', 'Error absoluto (°C)'),
-  });
-}
-
-export function updateMainChart(chart, times, analytical, euler, rk4, visibility, thresholds) {
-  chart.data.labels = times.map(t => t.toFixed(1));
-  chart.data.datasets = buildMainDatasets(times, analytical, euler, rk4, visibility, thresholds);
-  chart.update();
-}
-
-export function updateErrorChart(chart, times, eulerError, rk4Error, visibility) {
-  chart.data.labels = times.map(t => t.toFixed(1));
-  chart.data.datasets = buildErrorDatasets(eulerError, rk4Error, visibility);
+export function updateMainChart(chart, times, analytical, thresholds) {
+  chart.data.labels   = times.map(t => t.toFixed(1));
+  chart.data.datasets = buildMainDatasets(times, analytical, thresholds);
   chart.update();
 }

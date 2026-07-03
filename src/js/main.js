@@ -4,30 +4,29 @@
  */
 
 import {
-  buildTimeArray, solveAnalytical, solveEuler, solveRK4,
-  computeAbsoluteError, halfLifeTime, timeConstant,
+  buildTimeArray, solveAnalytical,
+  halfLifeTime, timeConstant,
 } from './solver.js';
 
-import { initMainChart, initErrorChart, updateMainChart, updateErrorChart } from './charts.js';
+import { initMainChart, updateMainChart } from './charts.js';
 import {
-  readParams, readVisibility,
-  syncSliderLabels,
+  readParams, syncSliderLabels,
   updateMetrics, updateTable, bindControls, exportCSV,
 } from './ui.js';
 import { THRESHOLDS } from './scenarios.js';
 import { initSensitivityChart, updateSensitivityChart } from './sensitivity.js';
-import { initPhaseChart,       updatePhaseChart       } from './phase.js';
-import { initConvergenceChart, updateConvergenceChart } from './convergence.js';
+import { initPhaseChart, updatePhaseChart } from './phase.js';
 import { api } from './api.js';
 import { renderServerList, renderSelectedServer, renderReadings } from './servers.js';
+
+// Resolución interna para la gráfica (no expuesto al usuario)
+const RESOLUTION_H = 0.5;
 
 // ── Gráficas ───────────────────────────────────────────────────────────────
 
 const mainChart        = initMainChart('mainChart');
-const errorChart       = initErrorChart('errorChart');
 const sensitivityChart = initSensitivityChart('sensitivityChart');
 const phaseChart       = initPhaseChart('phaseChart');
-const convergenceChart = initConvergenceChart('convergenceChart');
 
 // ── Estado ─────────────────────────────────────────────────────────────────
 
@@ -36,28 +35,20 @@ let activeServerId = null;
 // ── Simulación ─────────────────────────────────────────────────────────────
 
 function run() {
-  const params     = readParams();
-  const visibility = readVisibility();
-
+  const params = readParams();
   syncSliderLabels(params);
 
-  const times      = buildTimeArray(params);
+  const times      = buildTimeArray({ tmax: params.tmax, h: RESOLUTION_H });
   const analytical = solveAnalytical({ ...params, times });
-  const euler      = solveEuler({ ...params, times });
-  const rk4        = solveRK4({ ...params, times });
-  const eulerError = computeAbsoluteError(analytical, euler);
-  const rk4Error   = computeAbsoluteError(analytical, rk4);
 
-  updateMainChart(mainChart, times, analytical, euler, rk4, visibility, THRESHOLDS);
-  updateErrorChart(errorChart, times, eulerError, rk4Error, visibility);
-  updateMetrics({ analytical, eulerError, rk4Error, times, halfLife: halfLifeTime(params.k), tau: timeConstant(params.k) });
-  updateTable({ times, analytical, euler, rk4, eulerError, rk4Error });
+  updateMainChart(mainChart, times, analytical, THRESHOLDS);
+  updateMetrics({ analytical, times, halfLife: halfLifeTime(params.k), tau: timeConstant(params.k) });
+  updateTable({ times, analytical });
 
-  updateSensitivityChart(sensitivityChart, params);
+  updateSensitivityChart(sensitivityChart, { ...params, h: RESOLUTION_H });
   updatePhaseChart(phaseChart, { ...params, qdot: 0 });
-  updateConvergenceChart(convergenceChart, params);
 
-  window._lastResults = { times, analytical, euler, rk4, eulerError, rk4Error };
+  window._lastResults = { times, analytical };
 }
 
 // ── Servidores ─────────────────────────────────────────────────────────────

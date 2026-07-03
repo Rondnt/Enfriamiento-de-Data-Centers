@@ -140,18 +140,6 @@
               <label for="tmax">Tiempo de simulación (min)</label>
               <div class="slider-row"><input type="range" id="tmax" min="10" max="120" step="5" value="90" /><span class="val" id="tmaxval">90</span></div>
             </div>
-            <div class="control-group">
-              <label for="h">Paso de integración h (min)</label>
-              <div class="slider-row"><input type="range" id="h" min="0.1" max="5" step="0.1" value="1" /><span class="val" id="hval">1.0</span></div>
-            </div>
-            <div class="control-group">
-              <label>Métodos</label>
-              <div class="check-row">
-                <label><input type="checkbox" id="showAnalytical" checked /> Analítica</label>
-                <label><input type="checkbox" id="showEuler" checked /> Euler</label>
-                <label><input type="checkbox" id="showRK4" checked /> RK4</label>
-              </div>
-            </div>
           </div>
         </section>
       </div>
@@ -166,12 +154,10 @@
       <section class="card" id="section-metrics">
         <h2>Indicadores Clave</h2>
         <div class="metrics-grid">
-          <div class="metric"><span class="metric-label">T final (analítica)</span><span class="metric-value" id="metricTFinal">—</span></div>
-          <div class="metric"><span class="metric-label">Tiempo al 50%</span><span class="metric-value" id="metricHalfLife">—</span></div>
-          <div class="metric"><span class="metric-label">τ = 1/k</span><span class="metric-value" id="metricTau">—</span></div>
-          <div class="metric"><span class="metric-label">Error máx. Euler</span><span class="metric-value" id="metricEulerErr">—</span></div>
-          <div class="metric"><span class="metric-label">Error máx. RK4</span><span class="metric-value" id="metricRK4Err">—</span></div>
-          <div class="metric"><span class="metric-label">Umbral crítico &gt;85°C</span><span class="metric-value" id="metricCritical">—</span></div>
+          <div class="metric"><span class="metric-label">T final</span><span class="metric-value" id="metricTFinal">—</span></div>
+          <div class="metric"><span class="metric-label">Semivida — t al 50%</span><span class="metric-value" id="metricHalfLife">—</span></div>
+          <div class="metric"><span class="metric-label">Constante de tiempo τ = 1/k</span><span class="metric-value" id="metricTau">—</span></div>
+          <div class="metric"><span class="metric-label">Umbral crítico &gt; 85 °C</span><span class="metric-value" id="metricCritical">—</span></div>
         </div>
       </section>
 
@@ -182,42 +168,25 @@
         <div class="chart-wrapper"><canvas id="sensitivityChart"></canvas></div>
       </section>
 
-      <!-- Fila 5: Diagrama de fase + Convergencia -->
+      <!-- Fila 5: Diagrama de fase + Tabla -->
       <div class="two-col">
         <section class="card" id="section-phase">
           <h2>Diagrama de Fase</h2>
-          <p class="section-desc">dT/dt vs T — muestra el equilibrio del sistema.</p>
+          <p class="section-desc">dT/dt vs T — equilibrio del sistema en T* = T<sub>amb</sub>.</p>
           <div class="chart-wrapper chart-sm"><canvas id="phaseChart"></canvas></div>
-        </section>
-        <section class="card" id="section-convergence">
-          <h2>Análisis de Convergencia</h2>
-          <p class="section-desc">Error vs h — Euler O(h), RK4 O(h⁴). Escala log.</p>
-          <div class="chart-wrapper chart-sm"><canvas id="convergenceChart"></canvas></div>
-        </section>
-      </div>
-
-      <!-- Fila 6: Error numérico + Tabla -->
-      <div class="two-col">
-        <section class="card" id="section-error-chart">
-          <h2>Error Numérico vs Tiempo</h2>
-          <div class="chart-wrapper chart-sm"><canvas id="errorChart"></canvas></div>
         </section>
         <section class="card" id="section-table">
           <h2>Tabla de Resultados</h2>
           <div class="table-header-row">
-            <p class="table-note">Cada 5 pasos</p>
+            <p class="table-note">Cada 5 puntos</p>
             <button id="btnExportCSV" class="btn-export">Exportar CSV</button>
           </div>
           <div class="table-wrapper">
             <table>
               <thead>
                 <tr>
-                  <th>t</th>
-                  <th>Analítica</th>
-                  <th>Euler</th>
-                  <th>Err E</th>
-                  <th>RK4</th>
-                  <th>Err R</th>
+                  <th>t (min)</th>
+                  <th>T(t) analítica (°C)</th>
                 </tr>
               </thead>
               <tbody id="tableBody"></tbody>
