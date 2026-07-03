@@ -10,10 +10,10 @@ const TABLE_STEP = 5;
 
 export function readParams() {
   return {
-    T0:   parseFloat(document.getElementById('T0').value),
-    Tamb: parseFloat(document.getElementById('Tamb').value),
-    k:    parseFloat(document.getElementById('k').value),
-    tmax: parseFloat(document.getElementById('tmax').value),
+    T0:   parseFloat(document.getElementById('T0val').value)   || 80,
+    Tamb: parseFloat(document.getElementById('Tambval').value) || 22,
+    k:    parseFloat(document.getElementById('kval').value)    || 0.08,
+    tmax: parseFloat(document.getElementById('tmaxval').value) || 90,
   };
 }
 
@@ -82,16 +82,26 @@ export function bindControls(onChange) {
     const numInput = document.getElementById(id + 'val');
     const decimals = DECIMALS[id] ?? 0;
 
+    // Slider mueve → actualiza el número y recalcula
     slider.addEventListener('input', () => {
       numInput.value = parseFloat(slider.value).toFixed(decimals);
       onChange();
     });
 
+    // Usuario escribe → mueve el slider visualmente, recalcula desde el número escrito
     numInput.addEventListener('input', () => {
       const val = parseFloat(numInput.value);
-      if (!isNaN(val)) {
-        slider.value = val;
+      if (!isNaN(val) && isFinite(val)) {
+        slider.value = val; // snap visual en el slider, pero readParams lee del numInput
         onChange();
+      }
+    });
+
+    // Al salir del campo (tab/click fuera) formatea el número
+    numInput.addEventListener('blur', () => {
+      const val = parseFloat(numInput.value);
+      if (!isNaN(val) && isFinite(val) && id === 'k') {
+        numInput.value = val.toFixed(3);
       }
     });
   });
