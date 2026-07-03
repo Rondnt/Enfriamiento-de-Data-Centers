@@ -20,10 +20,10 @@ export function readParams() {
 // ── Actualización de labels de sliders ────────────────────────────────────
 
 export function syncSliderLabels(params) {
-  document.getElementById('T0val').textContent   = params.T0;
-  document.getElementById('Tambval').textContent = params.Tamb;
-  document.getElementById('kval').textContent    = params.k.toFixed(3);
-  document.getElementById('tmaxval').textContent = params.tmax;
+  document.getElementById('T0val').value   = params.T0;
+  document.getElementById('Tambval').value = params.Tamb;
+  document.getElementById('kval').value    = params.k.toFixed(3);
+  document.getElementById('tmaxval').value = params.tmax;
 }
 
 // ── Métricas ───────────────────────────────────────────────────────────────
@@ -75,9 +75,26 @@ export function syncQdotLabel(qdot) {
 // ── Registro de eventos ────────────────────────────────────────────────────
 
 export function bindControls(onChange) {
-  ['T0', 'Tamb', 'k', 'tmax'].forEach(id =>
-    document.getElementById(id).addEventListener('input', onChange)
-  );
+  const DECIMALS = { k: 3 };
+
+  ['T0', 'Tamb', 'k', 'tmax'].forEach(id => {
+    const slider   = document.getElementById(id);
+    const numInput = document.getElementById(id + 'val');
+    const decimals = DECIMALS[id] ?? 0;
+
+    slider.addEventListener('input', () => {
+      numInput.value = parseFloat(slider.value).toFixed(decimals);
+      onChange();
+    });
+
+    numInput.addEventListener('input', () => {
+      const val = parseFloat(numInput.value);
+      if (!isNaN(val)) {
+        slider.value = val;
+        onChange();
+      }
+    });
+  });
 }
 
 // ── Historial de simulaciones ─────────────────────────────────────────────

@@ -240,13 +240,39 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   box-shadow: 0 0 0 4px oklch(0.72 0.20 218 / 0.30);
 }
 
-.val {
-  min-width: 3.8rem;
+.val-input {
+  width: 5rem;
   text-align: right;
   font-family: var(--font-mono);
   font-size: 0.9rem;
   color: var(--accent);
   font-weight: 600;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  border-radius: 3px;
+  padding: 0.1rem 0.3rem;
+  outline: none;
+  cursor: text;
+  transition: background var(--transition), border-color var(--transition);
+  -moz-appearance: textfield;
+}
+
+.val-input:hover {
+  border-bottom-color: var(--border);
+}
+
+.val-input:focus {
+  background: var(--surface2);
+  border-bottom-color: var(--accent);
+  border-radius: 3px 3px 0 0;
+}
+
+/* Ocultar flechas del spinner en Chrome/Safari */
+.val-input::-webkit-outer-spin-button,
+.val-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .check-row {

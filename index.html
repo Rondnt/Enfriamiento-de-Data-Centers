@@ -126,19 +126,31 @@
           <div class="controls-list">
             <div class="control-group">
               <label for="T0">T<sub>0</sub> — Temperatura inicial (°C)</label>
-              <div class="slider-row"><input type="range" id="T0" min="25" max="120" step="1" value="80" /><span class="val" id="T0val">80</span></div>
+              <div class="slider-row">
+                <input type="range" id="T0" min="25" max="120" step="1" value="80" />
+                <input type="number" class="val-input" id="T0val" value="80" min="25" max="120" step="1" />
+              </div>
             </div>
             <div class="control-group">
               <label for="Tamb">T<sub>amb</sub> — Temperatura ambiente (°C)</label>
-              <div class="slider-row"><input type="range" id="Tamb" min="5" max="40" step="1" value="22" /><span class="val" id="Tambval">22</span></div>
+              <div class="slider-row">
+                <input type="range" id="Tamb" min="5" max="40" step="1" value="22" />
+                <input type="number" class="val-input" id="Tambval" value="22" min="5" max="40" step="1" />
+              </div>
             </div>
             <div class="control-group">
               <label for="k">k — Constante de enfriamiento (min⁻¹)</label>
-              <div class="slider-row"><input type="range" id="k" min="0.01" max="0.5" step="0.01" value="0.08" /><span class="val" id="kval">0.080</span></div>
+              <div class="slider-row">
+                <input type="range" id="k" min="0.01" max="0.5" step="0.01" value="0.08" />
+                <input type="number" class="val-input" id="kval" value="0.08" min="0.01" max="0.5" step="0.01" />
+              </div>
             </div>
             <div class="control-group">
               <label for="tmax">Tiempo de simulación (min)</label>
-              <div class="slider-row"><input type="range" id="tmax" min="10" max="120" step="5" value="90" /><span class="val" id="tmaxval">90</span></div>
+              <div class="slider-row">
+                <input type="range" id="tmax" min="10" max="120" step="5" value="90" />
+                <input type="number" class="val-input" id="tmaxval" value="90" min="10" max="120" step="5" />
+              </div>
             </div>
           </div>
         </section>
