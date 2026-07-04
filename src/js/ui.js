@@ -75,33 +75,22 @@ export function syncQdotLabel(qdot) {
 // ── Registro de eventos ────────────────────────────────────────────────────
 
 export function bindControls(onChange) {
-  const DECIMALS = { k: 3 };
+  [
+    { id: 'T0val',    decimals: 0 },
+    { id: 'Tambval',  decimals: 0 },
+    { id: 'kval',     decimals: 3 },
+    { id: 'tmaxval',  decimals: 0 },
+  ].forEach(({ id, decimals }) => {
+    const input = document.getElementById(id);
 
-  ['T0', 'Tamb', 'k', 'tmax'].forEach(id => {
-    const slider   = document.getElementById(id);
-    const numInput = document.getElementById(id + 'val');
-    const decimals = DECIMALS[id] ?? 0;
-
-    // Slider mueve → actualiza el número y recalcula
-    slider.addEventListener('input', () => {
-      numInput.value = parseFloat(slider.value).toFixed(decimals);
-      onChange();
+    input.addEventListener('input', () => {
+      if (!isNaN(parseFloat(input.value))) onChange();
     });
 
-    // Usuario escribe → mueve el slider visualmente, recalcula desde el número escrito
-    numInput.addEventListener('input', () => {
-      const val = parseFloat(numInput.value);
-      if (!isNaN(val) && isFinite(val)) {
-        slider.value = val; // snap visual en el slider, pero readParams lee del numInput
-        onChange();
-      }
-    });
-
-    // Al salir del campo (tab/click fuera) formatea el número
-    numInput.addEventListener('blur', () => {
-      const val = parseFloat(numInput.value);
-      if (!isNaN(val) && isFinite(val) && id === 'k') {
-        numInput.value = val.toFixed(3);
+    input.addEventListener('blur', () => {
+      const val = parseFloat(input.value);
+      if (!isNaN(val) && isFinite(val) && decimals > 0) {
+        input.value = val.toFixed(decimals);
       }
     });
   });

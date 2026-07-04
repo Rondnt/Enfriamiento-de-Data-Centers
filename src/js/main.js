@@ -81,12 +81,10 @@ document.getElementById('btnCalcK').addEventListener('click', () => {
     return;
   }
 
-  const k = -Math.log(ratio) / t1;
-  const kSlider = document.getElementById('k');
-  const kInput  = document.getElementById('kval');
-  kSlider.value = k;
-  kInput.value  = k.toFixed(3);
-  kSlider.dispatchEvent(new Event('input'));
+  const k      = -Math.log(ratio) / t1;
+  const kInput = document.getElementById('kval');
+  kInput.value = k.toFixed(3);
+  kInput.dispatchEvent(new Event('input'));
 
   result.textContent = `k = ${k.toFixed(4)} min⁻¹ — aplicado a la simulación`;
   result.classList.add('success');
@@ -114,13 +112,10 @@ async function calcKFromReading(t1, Tt1) {
     return;
   }
 
-  const k = -Math.log(ratio) / t1;
-
-  const kSlider = document.getElementById('k');
-  const kInput  = document.getElementById('kval');
-  kSlider.value = k;
-  kInput.value  = k.toFixed(3);
-  kSlider.dispatchEvent(new Event('input'));
+  const k      = -Math.log(ratio) / t1;
+  const kInput = document.getElementById('kval');
+  kInput.value = k.toFixed(3);
+  kInput.dispatchEvent(new Event('input'));
 
   if (activeServerId) {
     try {
@@ -150,20 +145,20 @@ function applyServerToControls(server) {
   const Tambval = parseFloat(server.tamb_default);
 
   if (!isNaN(T0val)) {
-    const el = document.getElementById('T0');
+    const el = document.getElementById('T0val');
     el.value = T0val;
     el.dispatchEvent(new Event('input'));
   }
   if (!isNaN(Tambval)) {
-    const el = document.getElementById('Tamb');
+    const el = document.getElementById('Tambval');
     el.value = Tambval;
     el.dispatchEvent(new Event('input'));
   }
   if (server.k_value != null) {
     const k = parseFloat(server.k_value);
     if (!isNaN(k)) {
-      const el = document.getElementById('k');
-      el.value = k;
+      const el = document.getElementById('kval');
+      el.value = k.toFixed(3);
       el.dispatchEvent(new Event('input'));
     }
   }
