@@ -34,15 +34,13 @@ function setMetric(id, text, warn = false) {
   el.classList.toggle('warn', warn);
 }
 
-export function updateMetrics({ analytical, times, halfLife, tau, T15 }) {
+export function updateMetrics({ analytical, times, T15 }) {
   const tFinal      = analytical[analytical.length - 1];
   const criticalIdx = analytical.findIndex(T => T > CRITICAL_TEMP);
   const isCritical  = criticalIdx !== -1;
 
-  setMetric('metricTFinal',   `${tFinal.toFixed(2)} °C`);
-  setMetric('metricT15',      `${T15.toFixed(2)} °C`, T15 > CRITICAL_TEMP);
-  setMetric('metricHalfLife', `${halfLife.toFixed(2)} min`);
-  setMetric('metricTau',      `${tau.toFixed(2)} min`);
+  setMetric('metricTFinal', `${tFinal.toFixed(2)} °C`);
+  setMetric('metricT15',    `${T15.toFixed(2)} °C`, T15 > CRITICAL_TEMP);
   setMetric(
     'metricCritical',
     isCritical ? `Sí — t=${times[criticalIdx].toFixed(1)} min` : 'No',

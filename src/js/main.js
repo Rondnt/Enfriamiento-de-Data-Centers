@@ -3,10 +3,7 @@
  * Punto de entrada. Orquesta servidores, solver, charts y análisis.
  */
 
-import {
-  buildTimeArray, solveAnalytical,
-  halfLifeTime, timeConstant,
-} from './solver.js';
+import { buildTimeArray, solveAnalytical } from './solver.js';
 
 import { initMainChart, updateMainChart } from './charts.js';
 import {
@@ -42,7 +39,7 @@ function run() {
   const T15 = params.Tamb + (params.T0 - params.Tamb) * Math.exp(-params.k * 15);
 
   updateMainChart(mainChart, times, analytical, THRESHOLDS);
-  updateMetrics({ analytical, times, halfLife: halfLifeTime(params.k), tau: timeConstant(params.k), T15 });
+  updateMetrics({ analytical, times, T15 });
   updateTable({ times, analytical });
 
   updateSensitivityChart(sensitivityChart, { ...params, h: RESOLUTION_H });
