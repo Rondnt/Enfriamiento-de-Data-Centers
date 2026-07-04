@@ -21,13 +21,13 @@
     <aside class="sidebar">
 
       <section class="card" id="section-servers">
-        <h2>Servidores DC</h2>
+        <div class="srv-section-header">
+          <h2>Servidores DC</h2>
+          <button id="btnNewServer" class="btn-secondary btn-sm">+ Registrar</button>
+        </div>
         <p class="section-desc">Selecciona un servidor para cargar sus parámetros.</p>
         <div id="serverList" class="server-grid-sidebar">
           <p class="empty-msg">Cargando...</p>
-        </div>
-        <div class="scenario-actions">
-          <button id="btnNewServer" class="btn-secondary btn-block">+ Registrar servidor</button>
         </div>
         <div id="serverForm" class="custom-scenario-form hidden">
           <h3>Nuevo Servidor</h3>
@@ -67,7 +67,7 @@
                 </select>
               </div>
             </div>
-            <div class="form-actions">
+            <div class="form-actions srv-form-actions">
               <button type="submit" class="btn-primary">Guardar</button>
               <button type="button" class="btn-secondary" onclick="document.getElementById('serverForm').classList.add('hidden')">Cancelar</button>
             </div>

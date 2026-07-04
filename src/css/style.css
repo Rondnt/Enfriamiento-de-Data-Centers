@@ -617,6 +617,41 @@ tbody td:first-child { text-align: left; color: var(--text-muted); }
 
 .scenario-actions { margin-top: 1rem; }
 
+/* Header de la sección de servidores con botón inline */
+.srv-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.srv-section-header h2 {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* Botón pequeño para acciones de cabecera */
+.btn-sm {
+  padding: 0.25rem 0.65rem;
+  font-size: 0.78rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Botones del form de servidor: grid para evitar overflow en sidebar estrecho */
+.srv-form-actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+/* Grid del formulario de servidor: alinear al tope para igualar campos */
+.form-grid-sidebar {
+  align-items: start;
+}
+
 .scenario-desc {
   font-size: 0.85rem;
   color: var(--text-muted);
