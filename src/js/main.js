@@ -13,6 +13,7 @@ import {
 import { THRESHOLDS } from './scenarios.js';
 import { initSensitivityChart, updateSensitivityChart } from './sensitivity.js';
 import { initComparisonChart, updateComparisonChart } from './comparison.js';
+import { initCoolingRateChart, updateCoolingRateChart } from './coolingrate.js';
 import { api } from './api.js';
 import { renderServerList, renderSelectedServer, renderReadings } from './servers.js';
 
@@ -23,6 +24,7 @@ const RESOLUTION_H = 0.5;
 const mainChart        = initMainChart('mainChart');
 const sensitivityChart = initSensitivityChart('sensitivityChart');
 const comparisonChart  = initComparisonChart('comparisonChart');
+const coolingRateChart = initCoolingRateChart('coolingRateChart');
 
 // ── Estado ─────────────────────────────────────────────────────────────────
 
@@ -44,6 +46,7 @@ function run() {
   updateTable({ times, analytical });
 
   updateSensitivityChart(sensitivityChart, activeServers, params.tmax, RESOLUTION_H);
+  updateCoolingRateChart(coolingRateChart, { ...params, h: RESOLUTION_H });
   window._lastResults = { times, analytical };
 }
 

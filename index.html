@@ -142,11 +142,18 @@
 
     <!-- Fila 5: Comparación T(15 min) + Tabla -->
     <div class="two-col">
-      <section class="card" id="section-comparison">
-        <h2>T(15 min) por Servidor</h2>
-        <p class="section-desc">Temperatura a los 15 minutos de cada servidor con k registrada.</p>
-        <div class="chart-wrapper chart-sm"><canvas id="comparisonChart"></canvas></div>
-      </section>
+      <div style="display:flex; flex-direction:column; gap:1.25rem;">
+        <section class="card" id="section-comparison">
+          <h2>T(15 min) por Servidor</h2>
+          <p class="section-desc">Temperatura a los 15 minutos de cada servidor con k registrada.</p>
+          <div class="chart-wrapper chart-sm"><canvas id="comparisonChart"></canvas></div>
+        </section>
+        <section class="card" id="section-cooling-rate">
+          <h2>Velocidad de Enfriamiento</h2>
+          <p class="section-desc">dT/dt = &minus;k &middot; (T<sub>0</sub> &minus; T<sub>amb</sub>) &middot; e<sup>&minus;kt</sup> — muestra cómo decrece la tasa de enfriamiento en el tiempo.</p>
+          <div class="chart-wrapper chart-sm"><canvas id="coolingRateChart"></canvas></div>
+        </section>
+      </div>
       <section class="card" id="section-table">
         <h2>Tabla de Resultados</h2>
         <div class="table-header-row">
