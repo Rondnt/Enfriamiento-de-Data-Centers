@@ -98,8 +98,8 @@ export function renderSelectedServer(containerId, server) {
   const panel = document.getElementById(containerId);
   panel.classList.remove('hidden');
 
-  document.getElementById('selectedServerName').textContent     = server.name;
-  document.getElementById('selectedServerType').textContent     = `${TYPE_ICONS[server.type] ?? ''} ${server.type} · ${server.cooling_type}`;
+  document.getElementById('selectedServerName').textContent = server.name;
+  document.getElementById('selectedServerType').innerHTML   = `<span class="chip-icon">${TYPE_ICONS[server.type] ?? ''}</span> ${server.type} · ${server.cooling_type}`;
   document.getElementById('selectedServerLocation').textContent = server.rack_location ?? '—';
   document.getElementById('selectedServerStatus').textContent   = STATUS_LABELS[server.status] ?? server.status;
   document.getElementById('selectedServerMaxTemp').textContent  = `${server.max_temp_c} °C`;
