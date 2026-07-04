@@ -19,7 +19,6 @@ import { initPhaseChart, updatePhaseChart } from './phase.js';
 import { api } from './api.js';
 import { renderServerList, renderSelectedServer, renderReadings } from './servers.js';
 
-// Resolución interna para la gráfica (no expuesto al usuario)
 const RESOLUTION_H = 0.5;
 
 // ── Gráficas ───────────────────────────────────────────────────────────────
@@ -54,10 +53,10 @@ function run() {
 // ── Calculadora de k (desde parámetros manuales) ──────────────────────────
 
 document.getElementById('btnCalcK').addEventListener('click', () => {
-  const params  = readParams();
-  const t1      = parseFloat(document.getElementById('kCalcT1').value);
-  const Tt1     = parseFloat(document.getElementById('kCalcTt1').value);
-  const result  = document.getElementById('kCalcResult');
+  const params = readParams();
+  const t1     = parseFloat(document.getElementById('kCalcT1').value);
+  const Tt1    = parseFloat(document.getElementById('kCalcTt1').value);
+  const result = document.getElementById('kCalcResult');
 
   result.classList.remove('hidden', 'success', 'error');
 
@@ -76,7 +75,6 @@ document.getElementById('btnCalcK').addEventListener('click', () => {
   }
 
   const ratio = (Tt1 - Tamb) / (T0 - Tamb);
-
   if (ratio <= 0 || ratio >= 1) {
     result.textContent = 'T(t₁) debe estar estrictamente entre T_amb y T₀.';
     result.classList.add('error');
@@ -84,7 +82,6 @@ document.getElementById('btnCalcK').addEventListener('click', () => {
   }
 
   const k = -Math.log(ratio) / t1;
-
   const kSlider = document.getElementById('k');
   const kInput  = document.getElementById('kval');
   kSlider.value = k;
@@ -111,7 +108,6 @@ async function calcKFromReading(t1, Tt1) {
   }
 
   const ratio = (Tt1 - Tamb) / (T0 - Tamb);
-
   if (ratio <= 0 || ratio >= 1) {
     result.textContent = `T(t₁) = ${Tt1} °C debe estar entre T_amb (${Tamb} °C) y T₀ (${T0} °C).`;
     result.classList.add('error');
@@ -120,19 +116,17 @@ async function calcKFromReading(t1, Tt1) {
 
   const k = -Math.log(ratio) / t1;
 
-  // Aplica k a la simulación
   const kSlider = document.getElementById('k');
   const kInput  = document.getElementById('kval');
   kSlider.value = k;
   kInput.value  = k.toFixed(3);
   kSlider.dispatchEvent(new Event('input'));
 
-  // Guarda k en el servidor
   if (activeServerId) {
     try {
       await api.servers.updateK(activeServerId, k);
       await refreshServers();
-    } catch { /* silencioso si falla el guardado */ }
+    } catch { /* silencioso */ }
   }
 
   result.textContent = `k = ${k.toFixed(4)} min⁻¹ — calculado de T(${t1} min) = ${Tt1.toFixed(1)} °C y guardado`;
@@ -147,7 +141,7 @@ async function refreshServers() {
     renderServerList('serverList', servers, onServerSelect);
   } catch {
     document.getElementById('serverList').innerHTML =
-      '<p class="empty-msg error">No se pudo conectar con el servidor.</p>';
+      '<p class="empty-msg error">No se pudo conectar.</p>';
   }
 }
 
@@ -165,7 +159,6 @@ function applyServerToControls(server) {
     el.value = Tambval;
     el.dispatchEvent(new Event('input'));
   }
-  // Solo aplica k si el servidor tiene valor definido
   if (server.k_value != null) {
     const k = parseFloat(server.k_value);
     if (!isNaN(k)) {
@@ -178,7 +171,7 @@ function applyServerToControls(server) {
 
 async function onServerSelect(server) {
   activeServerId = server.id;
-  renderSelectedServer('serverDetail', server);
+  renderSelectedServer('serverDetailPanel', server);
   applyServerToControls(server);
   refreshReadings();
 }
@@ -190,12 +183,9 @@ async function refreshReadings() {
   const readings = await api.readings.list(activeServerId);
   renderReadings('readingsList', readings, activeServerId, onDeleteReading);
 
-  // Delegación de eventos para botones "→ k" en cada lectura
   document.getElementById('readingsList').querySelectorAll('.btn-calc-k').forEach(btn => {
     btn.addEventListener('click', () => {
-      const t1  = parseFloat(btn.dataset.t);
-      const Tt1 = parseFloat(btn.dataset.temp);
-      calcKFromReading(t1, Tt1);
+      calcKFromReading(parseFloat(btn.dataset.t), parseFloat(btn.dataset.temp));
     });
   });
 }
@@ -217,10 +207,17 @@ document.getElementById('btnAddReading').addEventListener('click', async () => {
   await refreshServers();
 });
 
-// ── Formulario nuevo servidor ──────────────────────────────────────────────
+// ── Modal: nuevo servidor ──────────────────────────────────────────────────
 
-document.getElementById('btnNewServer').addEventListener('click', () => {
-  document.getElementById('serverForm').classList.toggle('hidden');
+const modal = document.getElementById('modalNewServer');
+
+document.getElementById('btnNewServer').addEventListener('click', () => modal.showModal());
+document.getElementById('btnCloseModal').addEventListener('click', () => modal.close());
+document.getElementById('btnCancelModal').addEventListener('click', () => modal.close());
+
+// Cerrar al hacer clic en el backdrop
+modal.addEventListener('click', e => {
+  if (e.target === modal) modal.close();
 });
 
 document.getElementById('formNewServer').addEventListener('submit', async e => {
@@ -238,7 +235,7 @@ document.getElementById('formNewServer').addEventListener('submit', async e => {
     status:        f.srvStatus.value,
   });
   f.reset();
-  document.getElementById('serverForm').classList.add('hidden');
+  modal.close();
   refreshServers();
 });
 
@@ -249,7 +246,8 @@ document.getElementById('btnDeleteServer').addEventListener('click', async () =>
   if (!confirm('¿Eliminar este servidor y todas sus lecturas?')) return;
   await api.servers.delete(activeServerId);
   activeServerId = null;
-  document.getElementById('serverDetail').classList.add('hidden');
+  document.getElementById('serverDetailPanel').classList.add('hidden');
+  document.querySelectorAll('.server-chip').forEach(c => c.classList.remove('active'));
   refreshServers();
 });
 

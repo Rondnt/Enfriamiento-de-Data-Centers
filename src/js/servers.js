@@ -1,46 +1,33 @@
 /**
  * servers.js
- * Renderizado de la lista de servidores y panel de lecturas de temperatura.
+ * Renderizado de chips de servidores, panel de detalle y lecturas.
  */
 
 const STATUS_LABELS = { active: 'Activo', shutdown: 'Apagado', maintenance: 'Mantenimiento' };
 const STATUS_CLASS  = { active: 'tag-green', shutdown: 'tag-gray', maintenance: 'tag-orange' };
 const TYPE_ICONS    = { web: '🌐', database: '🗄️', gpu: '⚡', hpc: '🖥️', storage: '💾', general: '🔲' };
 
-// ── Lista de servidores ────────────────────────────────────────────────────
+// ── Chips de servidores (franja horizontal) ───────────────────────────────
 
-function buildServerCard(server) {
-  const icon       = TYPE_ICONS[server.type] ?? '🔲';
-  const statusCls  = STATUS_CLASS[server.status] ?? 'tag-gray';
-  const statusLbl  = STATUS_LABELS[server.status] ?? server.status;
-  const lastTemp   = server.last_temp != null
-    ? `<span class="srv-temp ${parseFloat(server.last_temp) >= server.max_temp_c ? 'temp-critical' : ''}">
-         ${parseFloat(server.last_temp).toFixed(1)} °C
-       </span>`
-    : `<span class="srv-temp-none">Sin lecturas</span>`;
-  const kDisplay   = server.k_value != null
+function buildServerChip(server) {
+  const icon      = TYPE_ICONS[server.type] ?? '🔲';
+  const statusCls = STATUS_CLASS[server.status] ?? 'tag-gray';
+  const statusLbl = STATUS_LABELS[server.status] ?? server.status;
+  const kDisplay  = server.k_value != null
     ? `k = ${parseFloat(server.k_value).toFixed(3)}`
-    : `<span class="k-unknown">k = — (por calcular)</span>`;
+    : 'k = —';
+  const tempPart  = server.last_temp != null
+    ? ` · ${parseFloat(server.last_temp).toFixed(1)} °C`
+    : '';
 
   return `
-    <div class="server-card" data-id="${server.id}">
-      <div class="srv-header">
-        <span class="srv-icon">${icon}</span>
-        <div class="srv-info">
-          <span class="srv-name">${server.name}</span>
-          <span class="srv-location">${server.rack_location ?? '—'}</span>
-        </div>
-        <span class="scenario-tag ${statusCls}">${statusLbl}</span>
+    <div class="server-chip" data-id="${server.id}">
+      <span class="chip-icon">${icon}</span>
+      <div class="chip-info">
+        <span class="chip-name">${server.name}</span>
+        <span class="chip-meta">${kDisplay}${tempPart}</span>
       </div>
-      <div class="srv-meta">
-        <span>${kDisplay}</span>
-        <span>T_max = ${server.max_temp_c} °C</span>
-        <span>Cooling: ${server.cooling_type}</span>
-      </div>
-      <div class="srv-footer">
-        <span class="srv-temp-label">Última lectura:</span>
-        ${lastTemp}
-      </div>
+      <span class="scenario-tag ${statusCls}">${statusLbl}</span>
     </div>`;
 }
 
@@ -50,30 +37,31 @@ export function renderServerList(containerId, servers, onSelect) {
     container.innerHTML = '<p class="empty-msg">No hay servidores registrados.</p>';
     return;
   }
-  container.innerHTML = servers.map(s => buildServerCard(s)).join('');
-  container.querySelectorAll('.server-card').forEach(card => {
-    card.addEventListener('click', () => {
-      container.querySelectorAll('.server-card').forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-      const server = servers.find(s => s.id === parseInt(card.dataset.id));
+  container.innerHTML = servers.map(s => buildServerChip(s)).join('');
+  container.querySelectorAll('.server-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      container.querySelectorAll('.server-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const server = servers.find(s => s.id === parseInt(chip.dataset.id));
       onSelect(server);
     });
   });
 }
 
-// ── Panel del servidor seleccionado ───────────────────────────────────────
+// ── Panel de detalle del servidor seleccionado ────────────────────────────
 
 export function renderSelectedServer(containerId, server) {
-  const el = document.getElementById(containerId);
-  el.classList.remove('hidden');
-  el.querySelector('#selectedServerName').textContent     = server.name;
-  el.querySelector('#selectedServerType').textContent     = `${TYPE_ICONS[server.type] ?? ''} ${server.type} · ${server.cooling_type}`;
-  el.querySelector('#selectedServerLocation').textContent = server.rack_location ?? '—';
-  el.querySelector('#selectedServerStatus').textContent   = STATUS_LABELS[server.status] ?? server.status;
-  el.querySelector('#selectedServerMaxTemp').textContent  = `${server.max_temp_c} °C`;
-  el.querySelector('#selectedServerTamb').textContent     = `${server.tamb_default} °C`;
+  const panel = document.getElementById(containerId);
+  panel.classList.remove('hidden');
 
-  const kEl = el.querySelector('#selectedServerK');
+  document.getElementById('selectedServerName').textContent     = server.name;
+  document.getElementById('selectedServerType').textContent     = `${TYPE_ICONS[server.type] ?? ''} ${server.type} · ${server.cooling_type}`;
+  document.getElementById('selectedServerLocation').textContent = server.rack_location ?? '—';
+  document.getElementById('selectedServerStatus').textContent   = STATUS_LABELS[server.status] ?? server.status;
+  document.getElementById('selectedServerMaxTemp').textContent  = `${server.max_temp_c} °C`;
+  document.getElementById('selectedServerTamb').textContent     = `${server.tamb_default} °C`;
+
+  const kEl = document.getElementById('selectedServerK');
   if (server.k_value != null) {
     kEl.textContent = parseFloat(server.k_value).toFixed(4);
     kEl.classList.remove('k-unknown');
@@ -82,7 +70,6 @@ export function renderSelectedServer(containerId, server) {
     kEl.classList.add('k-unknown');
   }
 
-  // Limpia resultado previo
   const resultEl = document.getElementById('kFromReadingResult');
   if (resultEl) {
     resultEl.textContent = '';

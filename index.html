@@ -12,76 +12,28 @@
   <header>
     <div class="header-formula">dT/dt = &minus;k &middot; (T &minus; T<sub>amb</sub>)</div>
     <h1>Enfriamiento de Data Centers</h1>
-    <p class="subtitle">Ley de Enfriamiento de Newton &middot; Métodos Numéricos: Euler &amp; Runge-Kutta 4</p>
+    <p class="subtitle">Ley de Enfriamiento de Newton &middot; Solución Analítica</p>
   </header>
 
-  <div class="app-layout">
+  <!-- ══ FRANJA DE SERVIDORES ══ -->
+  <div class="server-strip">
+    <div id="serverList" class="server-chips">
+      <p class="empty-msg">Cargando servidores...</p>
+    </div>
+    <button id="btnNewServer" class="btn-server-add">+ Registrar servidor</button>
+  </div>
 
-    <!-- ══ SIDEBAR ══ -->
-    <aside class="sidebar">
+  <!-- ══ PANEL DE SERVIDOR SELECCIONADO ══ -->
+  <div id="serverDetailPanel" class="srv-detail-panel hidden">
+    <div class="srv-detail-inner">
 
-      <section class="card" id="section-servers">
-        <div class="srv-section-header">
-          <h2>Servidores DC</h2>
-          <button id="btnNewServer" class="btn-secondary btn-sm">+ Registrar</button>
-        </div>
-        <p class="section-desc">Selecciona un servidor para cargar sus parámetros.</p>
-        <div id="serverList" class="server-grid-sidebar">
-          <p class="empty-msg">Cargando...</p>
-        </div>
-        <div id="serverForm" class="custom-scenario-form hidden">
-          <h3>Nuevo Servidor</h3>
-          <form id="formNewServer">
-            <div class="form-grid-sidebar">
-              <div class="form-group"><label>Nombre</label><input type="text" name="srvName" required placeholder="Web-Server-02" /></div>
-              <div class="form-group"><label>Rack</label><input type="text" name="srvRack" placeholder="Zona B — Rack 4" /></div>
-              <div class="form-group">
-                <label>Tipo</label>
-                <select name="srvType">
-                  <option value="web">Web</option>
-                  <option value="database">Base de datos</option>
-                  <option value="gpu">GPU</option>
-                  <option value="hpc">HPC</option>
-                  <option value="storage">Storage</option>
-                  <option value="general">General</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Cooling</label>
-                <select name="srvCooling">
-                  <option value="air">Aire</option>
-                  <option value="liquid">Líquido</option>
-                  <option value="hybrid">Híbrido</option>
-                  <option value="immersion">Inmersión</option>
-                </select>
-              </div>
-              <div class="form-group"><label>k (min⁻¹) <span class="label-optional">opcional</span></label><input type="number" name="srvK" step="0.001" placeholder="ej. 0.08" /></div>
-              <div class="form-group"><label>T_max (°C)</label><input type="number" name="srvMaxTemp" step="0.5" value="85" required /></div>
-              <div class="form-group"><label>T_amb (°C)</label><input type="number" name="srvTamb" step="0.5" value="22" required /></div>
-              <div class="form-group">
-                <label>Estado</label>
-                <select name="srvStatus">
-                  <option value="active">Activo</option>
-                  <option value="maintenance">Mantenimiento</option>
-                  <option value="shutdown">Apagado</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-actions srv-form-actions">
-              <button type="submit" class="btn-primary">Guardar</button>
-              <button type="button" class="btn-secondary" onclick="document.getElementById('serverForm').classList.add('hidden')">Cancelar</button>
-            </div>
-          </form>
-        </div>
-      </section>
-
-      <section class="card hidden" id="serverDetail">
-        <div class="server-detail-header">
+      <div class="srv-detail-info">
+        <div class="srv-detail-title-row">
           <div>
-            <h2 id="selectedServerName">—</h2>
-            <p class="server-detail-sub" id="selectedServerType">—</p>
+            <div class="srv-detail-name" id="selectedServerName">—</div>
+            <div class="srv-detail-sub" id="selectedServerType">—</div>
           </div>
-          <button id="btnDeleteServer" class="btn-danger">✕</button>
+          <button id="btnDeleteServer" class="btn-danger btn-sm">✕ Eliminar</button>
         </div>
         <div class="server-detail-grid">
           <div class="metric"><span class="metric-label">Ubicación</span><span class="metric-value small" id="selectedServerLocation">—</span></div>
@@ -90,148 +42,213 @@
           <div class="metric"><span class="metric-label">T_max</span><span class="metric-value" id="selectedServerMaxTemp">—</span></div>
           <div class="metric"><span class="metric-label">T_amb</span><span class="metric-value" id="selectedServerTamb">—</span></div>
         </div>
-        <div class="readings-section">
-          <h3>Lecturas de temperatura</h3>
-          <div class="reading-input-row">
-            <input type="number" id="newReadingT" step="0.5" min="0" placeholder="t (min)" />
-            <input type="number" id="newReadingTemp" step="0.1" placeholder="T (°C)" />
-            <button id="btnAddReading" class="btn-primary">+ Registrar</button>
-          </div>
-          <div id="readingsList" class="readings-list"></div>
-          <p class="k-calc-result hidden" id="kFromReadingResult"></p>
-        </div>
-      </section>
-
-    </aside>
-
-    <!-- ══ CONTENIDO PRINCIPAL ══ -->
-    <main class="content">
-
-      <!-- Fila 1: Modelo + Controles -->
-      <div class="two-col">
-        <section class="card" id="section-model">
-          <h2>Modelo Matemático</h2>
-          <div class="equation-block">
-            <p class="eq">dT/dt = &minus;k &middot; (T &minus; T<sub>amb</sub>)</p>
-            <p class="eq">T(t) = T<sub>amb</sub> + (T<sub>0</sub> &minus; T<sub>amb</sub>) &middot; e<sup>&minus;kt</sup></p>
-          </div>
-          <div class="variables">
-            <span><strong>T(t)</strong> — Temperatura del servidor (°C)</span>
-            <span><strong>T<sub>amb</sub></strong> — Temperatura cuarto frío (°C)</span>
-            <span><strong>T<sub>0</sub></strong> — Temperatura inicial (°C)</span>
-            <span><strong>k</strong> — Constante de enfriamiento (min⁻¹)</span>
-          </div>
-        </section>
-
-        <section class="card" id="section-controls">
-          <h2>Parámetros</h2>
-          <div class="controls-list">
-            <div class="control-group">
-              <label for="T0">T<sub>0</sub> — Temperatura inicial (°C)</label>
-              <div class="slider-row">
-                <input type="range" id="T0" min="0" max="200" step="1" value="80" />
-                <input type="number" class="val-input" id="T0val" value="80" step="any" />
-              </div>
-            </div>
-            <div class="control-group">
-              <label for="Tamb">T<sub>amb</sub> — Temperatura ambiente (°C)</label>
-              <div class="slider-row">
-                <input type="range" id="Tamb" min="0" max="50" step="1" value="22" />
-                <input type="number" class="val-input" id="Tambval" value="22" step="any" />
-              </div>
-            </div>
-            <div class="control-group">
-              <label for="k">k — Constante de enfriamiento (min⁻¹)</label>
-              <div class="slider-row">
-                <input type="range" id="k" min="0.001" max="1" step="0.001" value="0.08" />
-                <input type="number" class="val-input" id="kval" value="0.08" step="any" />
-              </div>
-            </div>
-            <div class="control-group">
-              <label for="tmax">Tiempo de simulación (min)</label>
-              <div class="slider-row">
-                <input type="range" id="tmax" min="1" max="300" step="1" value="90" />
-                <input type="number" class="val-input" id="tmaxval" value="90" step="any" />
-              </div>
-            </div>
-          </div>
-
-          <div class="k-calc-section">
-            <p class="k-calc-label">Calcular k desde una medición</p>
-            <p class="k-calc-hint">Si conoces T(t₁), ingresa los datos y se calculará k automáticamente.</p>
-            <div class="k-calc-inputs">
-              <div class="form-group">
-                <label>t<sub>1</sub> (min)</label>
-                <input type="number" id="kCalcT1" step="0.5" min="0.1" placeholder="ej. 5" />
-              </div>
-              <div class="form-group">
-                <label>T(t<sub>1</sub>) (°C)</label>
-                <input type="number" id="kCalcTt1" step="0.1" placeholder="ej. 60" />
-              </div>
-              <button id="btnCalcK" class="btn-primary">Calcular k</button>
-            </div>
-            <p class="k-calc-result hidden" id="kCalcResult"></p>
-          </div>
-        </section>
       </div>
 
-      <!-- Fila 2: Gráfica principal (ancho completo) -->
-      <section class="card" id="section-main-chart">
-        <h2>Temperatura vs Tiempo — Comparación de Métodos</h2>
-        <div class="chart-wrapper"><canvas id="mainChart"></canvas></div>
-      </section>
-
-      <!-- Fila 3: Métricas (ancho completo) -->
-      <section class="card" id="section-metrics">
-        <h2>Indicadores Clave</h2>
-        <div class="metrics-grid">
-          <div class="metric"><span class="metric-label">T final</span><span class="metric-value" id="metricTFinal">—</span></div>
-          <div class="metric"><span class="metric-label">Semivida — t al 50%</span><span class="metric-value" id="metricHalfLife">—</span></div>
-          <div class="metric"><span class="metric-label">Constante de tiempo τ = 1/k</span><span class="metric-value" id="metricTau">—</span></div>
-          <div class="metric"><span class="metric-label">Umbral crítico &gt; 85 °C</span><span class="metric-value" id="metricCritical">—</span></div>
+      <div class="srv-detail-readings">
+        <h3 class="readings-title">Lecturas de temperatura</h3>
+        <div class="reading-input-row">
+          <input type="number" id="newReadingT" step="0.5" min="0" placeholder="t (min)" />
+          <input type="number" id="newReadingTemp" step="0.1" placeholder="T (°C)" />
+          <button id="btnAddReading" class="btn-primary">+ Registrar</button>
         </div>
-      </section>
-
-      <!-- Fila 4: Sensibilidad -->
-      <section class="card" id="section-sensitivity">
-        <h2>Análisis de Sensibilidad — k</h2>
-        <p class="section-desc">Curvas analíticas para distintos valores del coeficiente de enfriamiento k.</p>
-        <div class="chart-wrapper"><canvas id="sensitivityChart"></canvas></div>
-      </section>
-
-      <!-- Fila 5: Diagrama de fase + Tabla -->
-      <div class="two-col">
-        <section class="card" id="section-phase">
-          <h2>Diagrama de Fase</h2>
-          <p class="section-desc">dT/dt vs T — equilibrio del sistema en T* = T<sub>amb</sub>.</p>
-          <div class="chart-wrapper chart-sm"><canvas id="phaseChart"></canvas></div>
-        </section>
-        <section class="card" id="section-table">
-          <h2>Tabla de Resultados</h2>
-          <div class="table-header-row">
-            <p class="table-note">Cada 5 puntos</p>
-            <button id="btnExportCSV" class="btn-export">Exportar CSV</button>
-          </div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>t (min)</th>
-                  <th>T(t) analítica (°C)</th>
-                </tr>
-              </thead>
-              <tbody id="tableBody"></tbody>
-            </table>
-          </div>
-        </section>
+        <div id="readingsList" class="readings-list"></div>
+        <p class="k-calc-result hidden" id="kFromReadingResult"></p>
       </div>
 
-    </main>
+    </div>
   </div>
+
+  <!-- ══ CONTENIDO PRINCIPAL ══ -->
+  <main class="content">
+
+    <!-- Fila 1: Modelo + Controles -->
+    <div class="two-col">
+      <section class="card" id="section-model">
+        <h2>Modelo Matemático</h2>
+        <div class="equation-block">
+          <p class="eq">dT/dt = &minus;k &middot; (T &minus; T<sub>amb</sub>)</p>
+          <p class="eq">T(t) = T<sub>amb</sub> + (T<sub>0</sub> &minus; T<sub>amb</sub>) &middot; e<sup>&minus;kt</sup></p>
+        </div>
+        <div class="variables">
+          <span><strong>T(t)</strong> — Temperatura del servidor (°C)</span>
+          <span><strong>T<sub>amb</sub></strong> — Temperatura cuarto frío (°C)</span>
+          <span><strong>T<sub>0</sub></strong> — Temperatura inicial (°C)</span>
+          <span><strong>k</strong> — Constante de enfriamiento (min⁻¹)</span>
+        </div>
+      </section>
+
+      <section class="card" id="section-controls">
+        <h2>Parámetros</h2>
+        <div class="controls-list">
+          <div class="control-group">
+            <label for="T0">T<sub>0</sub> — Temperatura inicial (°C)</label>
+            <div class="slider-row">
+              <input type="range" id="T0" min="0" max="200" step="1" value="80" />
+              <input type="number" class="val-input" id="T0val" value="80" step="any" />
+            </div>
+          </div>
+          <div class="control-group">
+            <label for="Tamb">T<sub>amb</sub> — Temperatura ambiente (°C)</label>
+            <div class="slider-row">
+              <input type="range" id="Tamb" min="0" max="50" step="1" value="22" />
+              <input type="number" class="val-input" id="Tambval" value="22" step="any" />
+            </div>
+          </div>
+          <div class="control-group">
+            <label for="k">k — Constante de enfriamiento (min⁻¹)</label>
+            <div class="slider-row">
+              <input type="range" id="k" min="0.001" max="1" step="0.001" value="0.08" />
+              <input type="number" class="val-input" id="kval" value="0.08" step="any" />
+            </div>
+          </div>
+          <div class="control-group">
+            <label for="tmax">Tiempo de simulación (min)</label>
+            <div class="slider-row">
+              <input type="range" id="tmax" min="1" max="300" step="1" value="90" />
+              <input type="number" class="val-input" id="tmaxval" value="90" step="any" />
+            </div>
+          </div>
+        </div>
+
+        <div class="k-calc-section">
+          <p class="k-calc-label">Calcular k desde una medición</p>
+          <p class="k-calc-hint">Si conoces T(t₁), ingresa los datos y se calculará k automáticamente.</p>
+          <div class="k-calc-inputs">
+            <div class="form-group">
+              <label>t<sub>1</sub> (min)</label>
+              <input type="number" id="kCalcT1" step="0.5" min="0.1" placeholder="ej. 5" />
+            </div>
+            <div class="form-group">
+              <label>T(t<sub>1</sub>) (°C)</label>
+              <input type="number" id="kCalcTt1" step="0.1" placeholder="ej. 60" />
+            </div>
+            <button id="btnCalcK" class="btn-primary">Calcular k</button>
+          </div>
+          <p class="k-calc-result hidden" id="kCalcResult"></p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Fila 2: Gráfica principal -->
+    <section class="card" id="section-main-chart">
+      <h2>Temperatura vs Tiempo</h2>
+      <div class="chart-wrapper"><canvas id="mainChart"></canvas></div>
+    </section>
+
+    <!-- Fila 3: Métricas -->
+    <section class="card" id="section-metrics">
+      <h2>Indicadores Clave</h2>
+      <div class="metrics-grid">
+        <div class="metric"><span class="metric-label">T final</span><span class="metric-value" id="metricTFinal">—</span></div>
+        <div class="metric"><span class="metric-label">Semivida — t al 50%</span><span class="metric-value" id="metricHalfLife">—</span></div>
+        <div class="metric"><span class="metric-label">Constante de tiempo τ = 1/k</span><span class="metric-value" id="metricTau">—</span></div>
+        <div class="metric"><span class="metric-label">Umbral crítico &gt; 85 °C</span><span class="metric-value" id="metricCritical">—</span></div>
+      </div>
+    </section>
+
+    <!-- Fila 4: Sensibilidad -->
+    <section class="card" id="section-sensitivity">
+      <h2>Análisis de Sensibilidad — k</h2>
+      <p class="section-desc">Curvas analíticas para distintos valores del coeficiente de enfriamiento k.</p>
+      <div class="chart-wrapper"><canvas id="sensitivityChart"></canvas></div>
+    </section>
+
+    <!-- Fila 5: Diagrama de fase + Tabla -->
+    <div class="two-col">
+      <section class="card" id="section-phase">
+        <h2>Diagrama de Fase</h2>
+        <p class="section-desc">dT/dt vs T — equilibrio del sistema en T* = T<sub>amb</sub>.</p>
+        <div class="chart-wrapper chart-sm"><canvas id="phaseChart"></canvas></div>
+      </section>
+      <section class="card" id="section-table">
+        <h2>Tabla de Resultados</h2>
+        <div class="table-header-row">
+          <p class="table-note">Cada 5 puntos</p>
+          <button id="btnExportCSV" class="btn-export">Exportar CSV</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>t (min)</th>
+                <th>T(t) analítica (°C)</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+  </main>
 
   <footer>
     <p>Proyecto de Ecuaciones Diferenciales — Ley de Enfriamiento de Newton · Data Centers</p>
   </footer>
+
+  <!-- ══ MODAL: REGISTRAR SERVIDOR ══ -->
+  <dialog id="modalNewServer" class="srv-modal">
+    <div class="modal-header">
+      <h3>Registrar nuevo servidor</h3>
+      <button id="btnCloseModal" class="btn-close-modal" aria-label="Cerrar">✕</button>
+    </div>
+    <form id="formNewServer" class="modal-body">
+      <div class="form-grid-modal">
+        <div class="form-group form-group-full">
+          <label>Nombre del servidor</label>
+          <input type="text" name="srvName" required placeholder="ej. Web-Server-02" />
+        </div>
+        <div class="form-group">
+          <label>Rack / Ubicación</label>
+          <input type="text" name="srvRack" placeholder="ej. Zona B — Rack 4" />
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <select name="srvType">
+            <option value="web">Web</option>
+            <option value="database">Base de datos</option>
+            <option value="gpu">GPU</option>
+            <option value="hpc">HPC</option>
+            <option value="storage">Storage</option>
+            <option value="general">General</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Sistema de cooling</label>
+          <select name="srvCooling">
+            <option value="air">Aire</option>
+            <option value="liquid">Líquido</option>
+            <option value="hybrid">Híbrido</option>
+            <option value="immersion">Inmersión</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Estado inicial</label>
+          <select name="srvStatus">
+            <option value="active">Activo</option>
+            <option value="maintenance">Mantenimiento</option>
+            <option value="shutdown">Apagado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>T_max (°C)</label>
+          <input type="number" name="srvMaxTemp" step="0.5" value="85" required />
+        </div>
+        <div class="form-group">
+          <label>T_amb (°C)</label>
+          <input type="number" name="srvTamb" step="0.5" value="22" required />
+        </div>
+        <div class="form-group">
+          <label>k (min⁻¹) <span class="label-optional">opcional</span></label>
+          <input type="number" name="srvK" step="0.001" placeholder="ej. 0.08" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="btnCancelModal">Cancelar</button>
+        <button type="submit" class="btn-primary">Guardar servidor</button>
+      </div>
+    </form>
+  </dialog>
 
   <script type="module" src="src/js/main.js"></script>
 </body>
