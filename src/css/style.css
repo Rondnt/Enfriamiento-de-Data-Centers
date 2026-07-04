@@ -761,14 +761,13 @@ tbody td:first-child { text-align: left; color: var(--text-muted); }
   color: var(--text);
   padding: 0;
   width: min(560px, calc(100vw - 2rem));
-  max-height: calc(100vh - 4rem);
+  max-height: calc(100svh - 4rem);
   overflow-y: auto;
   box-shadow: 0 24px 64px oklch(0 0 0 / 0.5);
-  margin: auto;
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  margin: auto;
+  height: fit-content;
 }
 
 .srv-modal::backdrop {
