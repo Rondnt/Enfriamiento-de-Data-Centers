@@ -559,6 +559,11 @@ tbody td:first-child { text-align: left; color: var(--text-muted); }
   width: 100%;
 }
 
+.form-group input::placeholder {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
 .form-group input:focus,
 .form-group select:focus {
   border-color: var(--accent);
