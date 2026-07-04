@@ -79,7 +79,7 @@ export function bindControls(onChange) {
   [
     { id: 'T0val',    decimals: 0 },
     { id: 'Tambval',  decimals: 0 },
-    { id: 'kval',     decimals: 3 },
+    { id: 'kval',     decimals: 5 },
     { id: 'tmaxval',  decimals: 0 },
   ].forEach(({ id, decimals }) => {
     const input = document.getElementById(id);

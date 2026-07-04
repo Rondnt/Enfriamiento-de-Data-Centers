@@ -35,7 +35,6 @@ let activeServerId = null;
 
 function run() {
   const params = readParams();
-  syncSliderLabels(params);
 
   const times      = buildTimeArray({ tmax: params.tmax, h: RESOLUTION_H });
   const analytical = solveAnalytical({ ...params, times });
@@ -85,7 +84,7 @@ document.getElementById('btnCalcK').addEventListener('click', () => {
 
   const k      = -Math.log(ratio) / t1;
   const kInput = document.getElementById('kval');
-  kInput.value = k.toFixed(3);
+  kInput.value = k.toFixed(5);
   kInput.dispatchEvent(new Event('input'));
 
   result.textContent = `k = ${k.toFixed(4)} min⁻¹ — aplicado a la simulación`;
@@ -116,7 +115,7 @@ async function calcKFromReading(t1, Tt1) {
 
   const k      = -Math.log(ratio) / t1;
   const kInput = document.getElementById('kval');
-  kInput.value = k.toFixed(3);
+  kInput.value = k.toFixed(5);
   kInput.dispatchEvent(new Event('input'));
 
   if (activeServerId) {
@@ -143,7 +142,7 @@ async function refreshServers() {
 }
 
 function applyServerToControls(server) {
-  const T0val   = parseFloat(server.last_temp ?? server.max_temp_c);
+  const T0val   = parseFloat(server.max_temp_c);
   const Tambval = parseFloat(server.tamb_default);
 
   if (!isNaN(T0val)) {
@@ -160,7 +159,7 @@ function applyServerToControls(server) {
     const k = parseFloat(server.k_value);
     if (!isNaN(k)) {
       const el = document.getElementById('kval');
-      el.value = k.toFixed(3);
+      el.value = k.toFixed(5);
       el.dispatchEvent(new Event('input'));
     }
   }
