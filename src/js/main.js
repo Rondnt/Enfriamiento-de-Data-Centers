@@ -86,7 +86,16 @@ document.getElementById('btnCalcK').addEventListener('click', () => {
   kInput.value = k.toFixed(5);
   kInput.dispatchEvent(new Event('input'));
 
-  result.textContent = `k = ${k.toFixed(4)} min⁻¹ — aplicado a la simulación`;
+  if (activeServerId) {
+    api.servers.updateK(activeServerId, k).then(() => {
+      const kEl = document.getElementById('selectedServerK');
+      if (kEl) { kEl.textContent = k.toFixed(4); kEl.classList.remove('k-unknown'); }
+      refreshServers();
+    }).catch(() => {});
+    result.textContent = `k = ${k.toFixed(4)} min⁻¹ — aplicado y guardado en servidor`;
+  } else {
+    result.textContent = `k = ${k.toFixed(4)} min⁻¹ — aplicado a la simulación`;
+  }
   result.classList.add('success');
 });
 
@@ -120,6 +129,12 @@ async function calcKFromReading(t1, Tt1) {
   if (activeServerId) {
     try {
       await api.servers.updateK(activeServerId, k);
+      // Actualizar panel de detalle inmediatamente sin esperar re-selección
+      const kEl = document.getElementById('selectedServerK');
+      if (kEl) {
+        kEl.textContent = k.toFixed(4);
+        kEl.classList.remove('k-unknown');
+      }
       await refreshServers();
     } catch { /* silencioso */ }
   }
@@ -135,6 +150,11 @@ async function refreshServers() {
     const servers = await api.servers.list();
     activeServers = servers;
     renderServerList('serverList', servers, onServerSelect);
+    // Restaurar chip activo tras re-render
+    if (activeServerId) {
+      document.querySelector(`.server-chip[data-id="${activeServerId}"]`)
+        ?.classList.add('active');
+    }
     const params = readParams();
     updateSensitivityChart(sensitivityChart, activeServers, params.tmax, RESOLUTION_H);
     updateComparisonChart(comparisonChart, activeServers);
