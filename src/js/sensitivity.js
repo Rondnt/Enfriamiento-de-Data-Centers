@@ -1,30 +1,20 @@
 /**
  * sensitivity.js
- * Análisis de sensibilidad: familia de curvas T(t) para distintos valores de k.
- * Permite comparar visualmente el efecto del tipo de sistema de enfriamiento.
+ * Muestra una curva de enfriamiento por cada servidor registrado con k conocida.
  */
 
-import { buildSensitivityCurves } from './solver.js';
+import { buildTimeArray, solveAnalytical } from './solver.js';
 
-const K_PROFILES = [
-  { k: 0.03, label: 'k=0.03 — Fallo CRAC',          color: '#e84444' },
-  { k: 0.06, label: 'k=0.06 — Aire deficiente',       color: '#f99040' },
-  { k: 0.08, label: 'k=0.08 — Aire estándar',         color: '#e8c040' },
-  { k: 0.15, label: 'k=0.15 — Aire mejorado',         color: '#2ac4eb' },
-  { k: 0.25, label: 'k=0.25 — Enfriamiento híbrido',  color: '#a78bfa' },
-  { k: 0.35, label: 'k=0.35 — Enfriamiento líquido',  color: '#35c99a' },
+const COLORS = [
+  '#2ac4eb', // ice-blue
+  '#f07040', // naranja
+  '#35c99a', // teal
+  '#e8c040', // amarillo
+  '#a78bfa', // violeta
+  '#f472b6', // rosa
+  '#e84444', // rojo
+  '#60d4a0', // menta
 ];
-
-function buildDatasets(curves) {
-  return curves.map(c => ({
-    label: c.label,
-    data: c.temps,
-    borderColor: c.color,
-    borderWidth: 1.8,
-    pointRadius: 0,
-    tension: 0.3,
-  }));
-}
 
 function chartOptions() {
   return {
@@ -61,9 +51,35 @@ export function initSensitivityChart(canvasId) {
   });
 }
 
-export function updateSensitivityChart(chart, params) {
-  const curves = buildSensitivityCurves(params, K_PROFILES);
-  chart.data.labels   = curves[0].times.map(t => t.toFixed(1));
-  chart.data.datasets = buildDatasets(curves);
+export function updateSensitivityChart(chart, servers, tmax, h) {
+  const withK = (servers ?? []).filter(s => s.k_value != null);
+
+  if (!withK.length) {
+    chart.data.labels   = [];
+    chart.data.datasets = [];
+    chart.update();
+    return;
+  }
+
+  const times = buildTimeArray({ tmax, h });
+
+  chart.data.labels   = times.map(t => t.toFixed(1));
+  chart.data.datasets = withK.map((server, i) => {
+    const T0    = parseFloat(server.max_temp_c);
+    const Tamb  = parseFloat(server.tamb_default);
+    const k     = parseFloat(server.k_value);
+    const temps = solveAnalytical({ T0, Tamb, k, times });
+    const color = COLORS[i % COLORS.length];
+
+    return {
+      label:       `${server.name}  k=${k.toFixed(3)}`,
+      data:        temps,
+      borderColor: color,
+      borderWidth: 1.8,
+      pointRadius: 0,
+      tension:     0.3,
+    };
+  });
+
   chart.update();
 }

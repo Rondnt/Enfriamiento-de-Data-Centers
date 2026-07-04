@@ -27,6 +27,7 @@ const phaseChart       = initPhaseChart('phaseChart');
 // ── Estado ─────────────────────────────────────────────────────────────────
 
 let activeServerId = null;
+let activeServers  = [];
 
 // ── Simulación ─────────────────────────────────────────────────────────────
 
@@ -42,7 +43,7 @@ function run() {
   updateMetrics({ analytical, times, T15 });
   updateTable({ times, analytical });
 
-  updateSensitivityChart(sensitivityChart, { ...params, h: RESOLUTION_H });
+  updateSensitivityChart(sensitivityChart, activeServers, params.tmax, RESOLUTION_H);
   updatePhaseChart(phaseChart, { ...params, qdot: 0 });
 
   window._lastResults = { times, analytical };
@@ -131,7 +132,10 @@ async function calcKFromReading(t1, Tt1) {
 async function refreshServers() {
   try {
     const servers = await api.servers.list();
+    activeServers = servers;
     renderServerList('serverList', servers, onServerSelect);
+    const params = readParams();
+    updateSensitivityChart(sensitivityChart, activeServers, params.tmax, RESOLUTION_H);
   } catch {
     document.getElementById('serverList').innerHTML =
       '<p class="empty-msg error">No se pudo conectar.</p>';
