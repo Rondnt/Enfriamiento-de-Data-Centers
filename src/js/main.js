@@ -12,6 +12,7 @@ import {
 } from './ui.js';
 import { THRESHOLDS } from './scenarios.js';
 import { initSensitivityChart, updateSensitivityChart } from './sensitivity.js';
+import { initComparisonChart, updateComparisonChart } from './comparison.js';
 import { api } from './api.js';
 import { renderServerList, renderSelectedServer, renderReadings } from './servers.js';
 
@@ -21,6 +22,7 @@ const RESOLUTION_H = 0.5;
 
 const mainChart        = initMainChart('mainChart');
 const sensitivityChart = initSensitivityChart('sensitivityChart');
+const comparisonChart  = initComparisonChart('comparisonChart');
 
 // ── Estado ─────────────────────────────────────────────────────────────────
 
@@ -132,6 +134,7 @@ async function refreshServers() {
     renderServerList('serverList', servers, onServerSelect);
     const params = readParams();
     updateSensitivityChart(sensitivityChart, activeServers, params.tmax, RESOLUTION_H);
+    updateComparisonChart(comparisonChart, activeServers);
   } catch {
     document.getElementById('serverList').innerHTML =
       '<p class="empty-msg error">No se pudo conectar.</p>';
