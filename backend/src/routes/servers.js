@@ -33,10 +33,11 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { name, type, cooling_type, k_value, max_temp_c, tamb_default, rack_location, status } = req.body;
+    const k = (k_value !== '' && k_value != null) ? parseFloat(k_value) : null;
     const { rows } = await db.query(`
       INSERT INTO servers (name, type, cooling_type, k_value, max_temp_c, tamb_default, rack_location, status)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [name, type, cooling_type, k_value, max_temp_c ?? 85, tamb_default ?? 22, rack_location ?? '', status ?? 'active']
+      [name, type, cooling_type, k, max_temp_c ?? 85, tamb_default ?? 22, rack_location ?? '', status ?? 'active']
     );
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -47,11 +48,28 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { name, type, cooling_type, k_value, max_temp_c, tamb_default, rack_location, status } = req.body;
+    const k = (k_value !== '' && k_value != null) ? parseFloat(k_value) : null;
     const { rows } = await db.query(`
       UPDATE servers SET name=$1, type=$2, cooling_type=$3, k_value=$4,
         max_temp_c=$5, tamb_default=$6, rack_location=$7, status=$8
       WHERE id=$9 RETURNING *`,
-      [name, type, cooling_type, k_value, max_temp_c, tamb_default, rack_location, status, req.params.id]
+      [name, type, cooling_type, k, max_temp_c, tamb_default, rack_location, status, req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Servidor no encontrado' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Actualiza solo el valor de k (desde la calculadora de lecturas)
+router.patch('/:id/k', async (req, res) => {
+  try {
+    const k = parseFloat(req.body.k_value);
+    if (isNaN(k) || k <= 0) return res.status(400).json({ error: 'Valor de k inválido' });
+    const { rows } = await db.query(
+      'UPDATE servers SET k_value=$1 WHERE id=$2 RETURNING *',
+      [k, req.params.id]
     );
     if (!rows.length) return res.status(404).json({ error: 'Servidor no encontrado' });
     res.json(rows[0]);

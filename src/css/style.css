@@ -757,13 +757,13 @@ tbody td:first-child { text-align: left; color: var(--text-muted); }
 }
 
 .reading-input-row {
-  display: flex;
-  gap: 0.6rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
 
 .reading-input-row input[type="number"] {
-  flex: 1;
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -1039,6 +1039,54 @@ footer {
   footer {
     padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
   }
+}
+
+/* ─── Reading row: t_minutes + botón calc k ─── */
+
+.reading-t {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--accent-dim);
+  min-width: 4.5rem;
+  font-weight: 600;
+}
+
+.reading-t.reading-t-none {
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.btn-calc-k {
+  background: transparent;
+  border: 1px solid oklch(0.72 0.20 218 / 0.35);
+  color: var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.55rem;
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+  white-space: nowrap;
+}
+
+.btn-calc-k:hover {
+  border-color: var(--accent);
+  background: var(--accent-muted);
+}
+
+/* k desconocido en tarjetas y detalle de servidor */
+.k-unknown {
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: 0.85em;
+}
+
+/* Etiqueta "opcional" en labels de formulario */
+.label-optional {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-weight: 400;
+  margin-left: 0.25rem;
 }
 
 /* ─── Reduced motion ─── */

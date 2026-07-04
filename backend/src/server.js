@@ -26,10 +26,11 @@ app.use('/api/servers/:serverId/readings', readingsRouter);
 app.use('/api/scenarios',                  scenariosRouter);
 
 async function runMigrations() {
-  const sql = fs.readFileSync(
-    path.join(__dirname, 'db/migrations/001_init.sql'), 'utf8'
-  );
-  await db.query(sql);
+  const migrDir = path.join(__dirname, 'db/migrations');
+  for (const file of ['001_init.sql', '002_add_t_minutes.sql']) {
+    const sql = fs.readFileSync(path.join(migrDir, file), 'utf8');
+    await db.query(sql);
+  }
   console.log('✓ Migraciones OK');
 }
 
