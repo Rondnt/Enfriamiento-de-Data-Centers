@@ -40,8 +40,10 @@ function run() {
   const times      = buildTimeArray({ tmax: params.tmax, h: RESOLUTION_H });
   const analytical = solveAnalytical({ ...params, times });
 
+  const T15 = params.Tamb + (params.T0 - params.Tamb) * Math.exp(-params.k * 15);
+
   updateMainChart(mainChart, times, analytical, THRESHOLDS);
-  updateMetrics({ analytical, times, halfLife: halfLifeTime(params.k), tau: timeConstant(params.k) });
+  updateMetrics({ analytical, times, halfLife: halfLifeTime(params.k), tau: timeConstant(params.k), T15 });
   updateTable({ times, analytical });
 
   updateSensitivityChart(sensitivityChart, { ...params, h: RESOLUTION_H });
