@@ -12,7 +12,6 @@ import {
 } from './ui.js';
 import { THRESHOLDS } from './scenarios.js';
 import { initSensitivityChart, updateSensitivityChart } from './sensitivity.js';
-import { initPhaseChart, updatePhaseChart } from './phase.js';
 import { api } from './api.js';
 import { renderServerList, renderSelectedServer, renderReadings } from './servers.js';
 
@@ -22,7 +21,6 @@ const RESOLUTION_H = 0.5;
 
 const mainChart        = initMainChart('mainChart');
 const sensitivityChart = initSensitivityChart('sensitivityChart');
-const phaseChart       = initPhaseChart('phaseChart');
 
 // ── Estado ─────────────────────────────────────────────────────────────────
 
@@ -44,8 +42,6 @@ function run() {
   updateTable({ times, analytical });
 
   updateSensitivityChart(sensitivityChart, activeServers, params.tmax, RESOLUTION_H);
-  updatePhaseChart(phaseChart, { ...params, qdot: 0 });
-
   window._lastResults = { times, analytical };
 }
 
