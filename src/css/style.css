@@ -124,7 +124,7 @@ header h1 {
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
   flex: 0 0 auto;
-  max-width: 240px;
+  min-width: 140px;
   text-align: left;
 }
 
@@ -145,9 +145,6 @@ header h1 {
   font-weight: 600;
   color: var(--text);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 130px;
 }
 
 .chip-meta {
@@ -951,7 +948,7 @@ tbody td:first-child { text-align: left; color: var(--text-muted); }
 
 .server-detail-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1px;
   background: var(--border-soft);
   border: 1px solid var(--border-soft);
@@ -962,6 +959,7 @@ tbody td:first-child { text-align: left; color: var(--text-muted); }
 
 .server-detail-grid .metric {
   background: var(--surface);
+  padding: 0.6rem 0.85rem;
 }
 
 /* ─── Lecturas ─── */
