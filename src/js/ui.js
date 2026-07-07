@@ -9,11 +9,15 @@ const TABLE_STEP = 5;
 // ── Lectura de parámetros ──────────────────────────────────────────────────
 
 export function readParams() {
+  const hRaw = document.getElementById('hval').value.trim();
+  const h    = hRaw !== '' ? parseFloat(hRaw) : null;
   return {
     T0:   parseFloat(document.getElementById('T0val').value)   || 80,
     Tamb: parseFloat(document.getElementById('Tambval').value) || 22,
     k:    parseFloat(document.getElementById('kval').value)    || 0.08,
     tmax: parseFloat(document.getElementById('tmaxval').value) || 90,
+    // Paso de Euler — opcional. null = no dibujar Euler (no afecta el resultado)
+    h:    (h != null && !isNaN(h) && h > 0) ? h : null,
   };
 }
 
@@ -93,6 +97,11 @@ export function bindControls(onChange) {
       }
     });
   });
+
+  // Paso de Euler (opcional): re-ejecuta también al vaciarlo, para poder
+  // quitar la curva de Euler y volver a solo la solución analítica.
+  const hInput = document.getElementById('hval');
+  if (hInput) hInput.addEventListener('input', () => onChange());
 }
 
 // ── Historial de simulaciones ─────────────────────────────────────────────

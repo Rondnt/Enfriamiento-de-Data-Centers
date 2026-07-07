@@ -17,10 +17,10 @@ const BASE_DATASET_CONFIG = {
   tension: 0.3,
 };
 
-function buildThresholdDataset(label, value, color, count) {
+function buildThresholdDataset(label, value, color, tmax) {
   return {
     label,
-    data: Array(count).fill(value),
+    data: [{ x: 0, y: value }, { x: tmax, y: value }],
     borderColor: color,
     borderWidth: 1,
     borderDash: [4, 4],
@@ -29,20 +29,36 @@ function buildThresholdDataset(label, value, color, count) {
   };
 }
 
-function buildMainDatasets(times, analytical, thresholds) {
-  const n = times.length;
-  return [
-    buildThresholdDataset(thresholds.critical.label, thresholds.critical.value, thresholds.critical.color, n),
-    buildThresholdDataset(thresholds.warning.label,  thresholds.warning.value,  thresholds.warning.color,  n),
-    buildThresholdDataset(thresholds.ashrae.label,   thresholds.ashrae.value,   thresholds.ashrae.color,   n),
+function buildMainDatasets(times, analytical, thresholds, euler, eulerTimes) {
+  const tmax = times.length ? times[times.length - 1] : 0;
+  const datasets = [
+    buildThresholdDataset(thresholds.critical.label, thresholds.critical.value, thresholds.critical.color, tmax),
+    buildThresholdDataset(thresholds.warning.label,  thresholds.warning.value,  thresholds.warning.color,  tmax),
+    buildThresholdDataset(thresholds.ashrae.label,   thresholds.ashrae.value,   thresholds.ashrae.color,   tmax),
     {
       ...BASE_DATASET_CONFIG,
       label: 'T(t) — Solución analítica',
-      data: analytical,
+      data: times.map((t, i) => ({ x: t, y: analytical[i] })),
       borderColor: COLORS.analytical,
       borderWidth: 2.5,
     },
   ];
+
+  // Curva de Euler (opcional): solo si se proporcionó un paso h válido
+  if (euler && eulerTimes) {
+    datasets.push({
+      ...BASE_DATASET_CONFIG,
+      label: `Euler — paso h=${(eulerTimes[1] - eulerTimes[0] || 0).toFixed(2)} min`,
+      data: eulerTimes.map((t, i) => ({ x: t, y: euler[i] })),
+      borderColor: COLORS.euler,
+      borderWidth: 2,
+      borderDash: [6, 3],
+      pointRadius: 2.5,
+      tension: 0,
+    });
+  }
+
+  return datasets;
 }
 
 function chartDefaults(xLabel, yLabel) {
@@ -70,8 +86,12 @@ function chartDefaults(xLabel, yLabel) {
     },
     scales: {
       x: {
+        type: 'linear',
         title: { display: true, text: xLabel, color: muted, font: { size: 11 } },
-        ticks: { color: muted, maxTicksLimit: 12, font: { size: 11 } },
+        ticks: {
+          color: muted, maxTicksLimit: 12, font: { size: 11 },
+          callback: v => Number(v).toFixed(1),
+        },
         grid: { color: grid },
         border: { color: grid },
       },
@@ -94,8 +114,7 @@ export function initMainChart(canvasId) {
   });
 }
 
-export function updateMainChart(chart, times, analytical, thresholds) {
-  chart.data.labels   = times.map(t => t.toFixed(1));
-  chart.data.datasets = buildMainDatasets(times, analytical, thresholds);
+export function updateMainChart(chart, times, analytical, thresholds, euler = null, eulerTimes = null) {
+  chart.data.datasets = buildMainDatasets(times, analytical, thresholds, euler, eulerTimes);
   chart.update();
 }

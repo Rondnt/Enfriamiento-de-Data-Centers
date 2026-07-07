@@ -3,7 +3,7 @@
  * Punto de entrada. Orquesta servidores, solver, charts y análisis.
  */
 
-import { buildTimeArray, solveAnalytical } from './solver.js';
+import { buildTimeArray, solveAnalytical, solveEuler } from './solver.js';
 
 import { initMainChart, updateMainChart } from './charts.js';
 import {
@@ -41,7 +41,15 @@ function run() {
 
   const T15 = params.Tamb + (params.T0 - params.Tamb) * Math.exp(-params.k * 15);
 
-  updateMainChart(mainChart, times, analytical, THRESHOLDS);
+  // Euler opcional: solo si el usuario ingresó un paso h válido.
+  // Si h es null, euler/eulerTimes quedan null y el gráfico no cambia.
+  let euler = null, eulerTimes = null;
+  if (params.h != null) {
+    eulerTimes = buildTimeArray({ tmax: params.tmax, h: params.h });
+    euler      = solveEuler({ ...params, times: eulerTimes, h: params.h });
+  }
+
+  updateMainChart(mainChart, times, analytical, THRESHOLDS, euler, eulerTimes);
   updateMetrics({ analytical, times, T15 });
   updateTable({ times, analytical });
 
